@@ -1,7 +1,7 @@
 # Benchmark accuracy denominators don't match what was scored
 
 **Library:** confident-ai/deepeval · **PR:** [#2966](https://github.com/confident-ai/deepeval/pull/2966)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 Two benchmarks divide by a denominator that isn't the set of goldens they actually scored.
 Neither raises.
@@ -45,14 +45,14 @@ deflates accuracy by `1319/5000`. A perfect model reports **0.264**.
 
 ## Behaviour change
 
-The EquityMedQA cap becomes `n_problems_per_task`, defaulting to 10 — so an existing run scores
+The EquityMedQA cap becomes `n_problems_per_task`, defaulting to 10, so an existing run scores
 exactly the same goldens as before and only the denominator changes. For GSM8K with
 `n_problems <= 1319` the two denominators are equal, so correct runs are unaffected.
 
 ## Reproduce
 
 - Source: `deepeval/benchmarks/equity_med_qa/equity_med_qa.py`, `deepeval/benchmarks/gsm8k/gsm8k.py`
-- Test: `tests/test_benchmarks/test_benchmark_accuracy_denominator.py` — 5 of 8 fail on `main`
+- Test: `tests/test_benchmarks/test_benchmark_accuracy_denominator.py`, 5 of 8 fail on `main`
 
 ```bash
 gh pr checkout 2966 --repo confident-ai/deepeval
@@ -60,4 +60,4 @@ git checkout origin/main -- deepeval/benchmarks/equity_med_qa/equity_med_qa.py d
 python -m pytest tests/test_benchmarks/test_benchmark_accuracy_denominator.py -q
 ```
 
-The dataset and predictions are scripted fakes — no model, network or API key.
+The dataset and predictions are scripted fakes: no model, network or API key.

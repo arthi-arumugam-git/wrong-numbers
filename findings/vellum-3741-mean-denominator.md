@@ -1,7 +1,7 @@
 # Mean metric divides by the unfiltered length
 
 **Library:** vellum-ai/vellum-python-sdks · **PR:** [#3741](https://github.com/vellum-ai/vellum-python-sdks/pull/3741)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -14,7 +14,7 @@ return sum(cast(Iterable[float], filter(lambda o: isinstance(o, float), output_v
 
 `get_numeric_metric_output_values` is declared `-> List[float | None]`, and
 `TestSuiteRunMetricNumberOutput.value` is `Optional[float]`, so `None` is a legal and reachable
-element — not a defensive case that never happens.
+element, not a defensive case that never happens.
 
 ## The number
 

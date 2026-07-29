@@ -1,7 +1,7 @@
 # HumanEval collapses pass@k into pass@n
 
 **Library:** confident-ai/deepeval · **PR:** [#2967](https://github.com/confident-ai/deepeval/pull/2967)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -12,7 +12,7 @@ if score:
     overall_correct_predictions += 1
 ```
 
-`score` is pass@k — a probability in `[0, 1]`, not a flag. `Scorer.pass_at_k(n, c, k)` returns
+`score` is pass@k, a probability in `[0, 1]`, not a flag. `Scorer.pass_at_k(n, c, k)` returns
 a non-zero value whenever at least one of the `n` samples passes, so `if score:` counts the task
 as a full pass. That is pass@n regardless of the `k` that was asked for.
 
@@ -41,4 +41,4 @@ git checkout origin/main -- deepeval/benchmarks/human_eval/human_eval.py
 python -m pytest tests/test_benchmarks/test_human_eval_pass_at_k.py -q
 ```
 
-No model, network or API key required — the predictions are scripted.
+No model, network or API key required: the predictions are scripted.

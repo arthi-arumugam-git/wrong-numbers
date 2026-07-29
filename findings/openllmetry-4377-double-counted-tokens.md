@@ -1,7 +1,7 @@
 # Streamed output tokens double-counted
 
 **Library:** traceloop/openllmetry · **PR:** [#4377](https://github.com/traceloop/openllmetry/pull/4377)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -49,8 +49,8 @@ with prompt-cache and tool-use shapes where that initial count is larger.
 ## Why it survived CI
 
 `test_anthropic_message_streaming_legacy` already asserted `input_tokens == 17` **and** the
-`input + output == total` identity. It never asserted the output value itself — the one that was
-wrong — so the bug passed CI for as long as it existed.
+`input + output == total` identity. It never asserted the output value itself, the one that was
+wrong, so the bug passed CI for as long as it existed.
 
 That is the cleanest example in the whole set of why these survive: the test suite was not thin,
 it was thin in exactly one place.
@@ -66,4 +66,4 @@ git checkout origin/main -- packages/opentelemetry-instrumentation-anthropic/ope
 python -m pytest packages/opentelemetry-instrumentation-anthropic/tests/test_messages.py -k streaming_legacy -q
 ```
 
-Fails with `assert 174 == 171`. Replays a recorded cassette — no network or API key.
+Fails with `assert 174 == 171`. Replays a recorded cassette: no network or API key.

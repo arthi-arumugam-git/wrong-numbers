@@ -1,7 +1,7 @@
 # `timeout` accepted and never passed to the client
 
 **Library:** okareo-ai/okareo-python-sdk · **PR:** [#261](https://github.com/okareo-ai/okareo-python-sdk/pull/261)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -20,7 +20,7 @@ def __init__(
 `Client._timeout` stays at its `None` default, so `get_httpx_client()` constructs
 `httpx.Client(timeout=None)`.
 
-Passing `None` explicitly is **not** the same as leaving it out — it disables httpx's own 5 second
+Passing `None` explicitly is **not** the same as leaving it out: it disables httpx's own 5 second
 default. The SDK therefore runs with `Timeout(timeout=None)`: no connect, read, write or pool
 timeout at all. A connection that hangs hangs **forever** rather than raising.
 

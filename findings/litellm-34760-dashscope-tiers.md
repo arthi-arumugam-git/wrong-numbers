@@ -1,7 +1,7 @@
 # DashScope tiers each token category independently
 
 **Library:** BerriAI/litellm · **PR:** [#34760](https://github.com/BerriAI/litellm/pull/34760)
-· **Status:** open, unreviewed as of 2026-07-28 · Automated review: 5/5
+· **Status:** open, unreviewed as of 2026-07-29 · Automated review: 5/5
 
 ## What's wrong
 
@@ -36,7 +36,7 @@ git checkout origin/main -- litellm/llms/dashscope/cost_calculator.py
 python -m pytest tests/test_litellm/llms/dashscope/test_dashscope_cost_calculator.py -q
 ```
 
-No credentials needed — the calculator is called directly with usage objects.
+No credentials needed: the calculator is called directly with usage objects.
 
 ## Related
 

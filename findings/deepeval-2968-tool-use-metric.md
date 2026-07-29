@@ -1,7 +1,7 @@
 # ToolUseMetric scores 0 when no tool was needed
 
 **Library:** confident-ai/deepeval · **PR:** [#2968](https://github.com/confident-ai/deepeval/pull/2968)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -15,8 +15,8 @@ argument_correctness_scores = [
 ]
 ```
 
-When no turn calls a tool, that list is empty. `_calculate_score` still averages it — a sum of 0
-over a divisor forced to 1 — and folds the resulting `0.0` into the `min()`:
+When no turn calls a tool, that list is empty. `_calculate_score` still averages it (a sum of 0
+over a divisor forced to 1) and folds the resulting `0.0` into the `min()`:
 
 ```python
 argument_correctness_score_divisor = (
@@ -35,7 +35,7 @@ whatever the tool selection score says. That is the same score a model gets for 
 tool wrong.
 
 Any multi-turn suite mixing tool-requiring and conversational turns has its conversational turns
-scored 0 and the aggregate dragged down — with no error, and a reason string that reads as if
+scored 0 and the aggregate dragged down, with no error, and a reason string that reads as if
 tool use failed.
 
 ## The fix, and the objection it anticipates
@@ -45,12 +45,12 @@ When there are no argument correctness scores, use the tool selection score alon
 have called one and didn't still scores low. The fallback doesn't mask it, and a test pins that
 case specifically.
 
-Behaviour is unchanged whenever any tool was called — the same `min()` of the same two averages.
+Behaviour is unchanged whenever any tool was called: the same `min()` of the same two averages.
 
 ## Reproduce
 
 - Source: `deepeval/metrics/tool_use/tool_use.py`
-- Test: `tests/test_metrics/test_tool_use_metric_score.py` — 5 of 9 fail on `main`
+- Test: `tests/test_metrics/test_tool_use_metric_score.py`, 5 of 9 fail on `main`
 
 ```bash
 gh pr checkout 2968 --repo confident-ai/deepeval

@@ -1,10 +1,10 @@
 # `ollama/` drops every tool call when `stream=true`
 
 **Library:** BerriAI/litellm · **PR:** [#34769](https://github.com/BerriAI/litellm/pull/34769)
-· **Status:** open, unreviewed as of 2026-07-28 · Automated review: 5/5
+· **Status:** open, unreviewed as of 2026-07-29 · Automated review: 5/5
 · Fixes [#19742](https://github.com/BerriAI/litellm/issues/19742)
 
-Not a wrong number. The same silence, in control flow — and the most vivid case in the set.
+Not a wrong number. The same silence, in control flow, and the most vivid case in the set.
 
 ## What's wrong
 
@@ -38,14 +38,14 @@ well-formed and plausible, hands it to a caller with no way to tell, and never s
 The conversion is **gated**, not a shape heuristic:
 
 - `transform_request` arms detection only when litellm's own tool prompt has actually been
-  injected — so nothing fires on a plain streamed JSON response from a request that never asked
+  injected, so nothing fires on a plain streamed JSON response from a request that never asked
   for tools.
 - Synthesised tool calls are restricted to the functions the request actually offered.
   `get_optional_params` passes on the schemas it rewrote, so the offered names survive to the
   point where the stream is parsed.
 
 Worth stating plainly: the first two attempts scored 3/5 on the repo's automated review and were
-reworked. One version passed unit tests and **broke against a real ollama** — caught only by
+reworked. One version passed unit tests and **broke against a real ollama**, caught only by
 running it live, not by CI.
 
 ## Reproduce

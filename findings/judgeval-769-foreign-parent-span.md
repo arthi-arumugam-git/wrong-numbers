@@ -1,7 +1,7 @@
 # A foreign global OTel span is adopted as parent
 
 **Library:** JudgmentLabs/judgeval · **PR:** [#769](https://github.com/JudgmentLabs/judgeval/pull/769)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -9,9 +9,9 @@
 **global** OTel context whenever this provider owns the global provider. That folded two different
 jobs into one method:
 
-- **write** — publish the active Judgment span into the global context, so third-party
+- **write**: publish the active Judgment span into the global context, so third-party
   instrumentation calling `trace.get_current_span()` can see it
-- **read** — decide what a newly started Judgment span should be parented to
+- **read**: decide what a newly started Judgment span should be parented to
 
 Only the write direction actually needs to be global.
 

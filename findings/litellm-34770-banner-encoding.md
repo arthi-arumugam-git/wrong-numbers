@@ -1,14 +1,14 @@
 # Proxy won't start on a console that can't encode the banner
 
 **Library:** BerriAI/litellm · **PR:** [#34770](https://github.com/BerriAI/litellm/pull/34770)
-· **Status:** open, unreviewed as of 2026-07-28 · Automated review: 5/5
+· **Status:** open, unreviewed as of 2026-07-29 · Automated review: 5/5
 
 The smallest item in the set, and included for completeness rather than for the argument.
 
 ## What's wrong
 
 The proxy prints a decorative startup banner. On a console whose encoding can't represent the
-characters in it — Windows `cp1252` being the common case — the print raises, and the proxy fails
+characters in it, Windows `cp1252` being the common case, the print raises, and the proxy fails
 to start.
 
 A cosmetic line takes down the process before it serves anything.

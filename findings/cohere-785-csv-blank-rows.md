@@ -1,13 +1,13 @@
 # `save_csv` writes a blank row between every record on Windows
 
 **Library:** cohere-ai/cohere-python · **PR:** [#785](https://github.com/cohere-ai/cohere-python/pull/785)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
 `save_dataset(format="csv")` opens the file with `open(filepath, "w")` and hands it to
 `csv.DictWriter`. `DictWriter` terminates every row with `\r\n` itself, and on Windows a text
-stream then translates that `\n` into `\r\n` as well — so every row ends up terminated with
+stream then translates that `\n` into `\r\n` as well, so every row ends up terminated with
 `\r\r\n`.
 
 ```python
@@ -32,7 +32,7 @@ separator and is a different question.
 
 The bug only reproduces on a platform whose text streams translate newlines. **On Linux the
 unfixed code writes correct bytes**, so any test that inspects the file passes with or without the
-fix — and Linux CI would be guarding nothing.
+fix, and Linux CI would be guarding nothing.
 
 So there are three tests. Two inspect the file and assert exact bytes rather than counting blank
 rows, since that states the real contract; they fail on Windows without the change. The third

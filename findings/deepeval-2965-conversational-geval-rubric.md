@@ -1,7 +1,7 @@
 # ConversationalGEval ignores the rubric range
 
 **Library:** confident-ai/deepeval · **PR:** [#2965](https://github.com/confident-ai/deepeval/pull/2965)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -19,7 +19,7 @@ two metrics, same input, different answer.
 
 This isn't an oversight nobody caught. deepeval fixed exactly this bug in `g_eval.py` in
 [PR #1915](https://github.com/confident-ai/deepeval/pull/1915), merged in August 2025. The fix
-was correct. It just never reached the conversational variant — and the shared `get_score_range`
+was correct. It just never reached the conversational variant, and the shared `get_score_range`
 helper that fix introduced was sitting right there, unused by the twin.
 
 A guard that is correct in one code path and never applied to its twin is one of the four shapes

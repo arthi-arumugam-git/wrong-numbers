@@ -1,7 +1,7 @@
 # `temperature=0` overwritten by the class default
 
 **Library:** okareo-ai/okareo-python-sdk · **PR:** [#260](https://github.com/okareo-ai/okareo-python-sdk/pull/260)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -31,12 +31,12 @@ driver.temperature   # 0.6
 trip **silently rewrites the stored `0` to `0.6` on the server**, and a deterministic driver stops
 being deterministic. Nothing raises and nothing is logged.
 
-`run_simulation` hits this path too — it calls `create_or_update_driver(driver)` for an inline
+`run_simulation` hits this path too: it calls `create_or_update_driver(driver)` for an inline
 `Driver`, so the returned object already carries the wrong temperature.
 
 ## Scope of the fix
 
-Compare against `None` instead. `model_id` and `project_id` were deliberately left alone — those
+Compare against `None` instead. `model_id` and `project_id` were deliberately left alone, those
 are genuinely `Optional`/`Unset` on the response models, so a truthiness check there isn't hiding
 anything.
 
@@ -51,4 +51,4 @@ git checkout origin/main -- src/okareo/model_under_test.py
 pytest okareo_tests/test_model_under_test.py -k driver_from_response
 ```
 
-The tests construct a `DriverModelResponse` directly — no network or API key.
+The tests construct a `DriverModelResponse` directly: no network or API key.

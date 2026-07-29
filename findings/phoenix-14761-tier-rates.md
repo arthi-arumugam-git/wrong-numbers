@@ -1,14 +1,14 @@
 # LiteLLM tier rates never reach the cost manifest
 
 **Library:** Arize-ai/phoenix · **PR:** [#14761](https://github.com/Arize-ai/phoenix/pull/14761)
-· **Status:** open, unreviewed as of 2026-07-28 · Closes [#14314](https://github.com/Arize-ai/phoenix/issues/14314)
+· **Status:** open, unreviewed as of 2026-07-29 · Closes [#14314](https://github.com/Arize-ai/phoenix/issues/14314)
 
 ## What's wrong
 
 Phoenix builds its cost manifest from LiteLLM's pricing data via `sync_models.py`. That script
 reads only the flat rate fields.
 
-LiteLLM also publishes `input_cost_per_token_above_200k_tokens` and friends — whole-prompt tier
+LiteLLM also publishes `input_cost_per_token_above_200k_tokens` and friends: whole-prompt tier
 rates that **replace** the base rate outright once the prompt exceeds the threshold. The script
 never matched them.
 
@@ -32,7 +32,7 @@ models**, up from zero.
 | `gpt-5.4` | `2.5e-6` | `5e-6` (272K) | 2x |
 | `gpt-5.5` | `5e-6` | `1e-5` (272K) | 2x |
 
-Output rates too — `gpt-5.4` goes `1.5e-5` → `2.25e-5` above 272K.
+Output rates too: `gpt-5.4` goes `1.5e-5` → `2.25e-5` above 272K.
 
 ## A design note
 
@@ -41,8 +41,8 @@ fields and emits a customization keyed on `llm.token_count.prompt`. The key is d
 LiteLLM's breakpoints are a function of **prompt** length, so output and cache rates key off the
 prompt count too, not their own token type.
 
-Where a model publishes more than one tier the lowest threshold wins — that's where billing first
-diverges from the base rate — and the script prints the tiers it didn't use rather than dropping
+Where a model publishes more than one tier the lowest threshold wins, which is where billing first
+diverges from the base rate, and the script prints the tiers it didn't use rather than dropping
 them silently.
 
 ## Reproduce

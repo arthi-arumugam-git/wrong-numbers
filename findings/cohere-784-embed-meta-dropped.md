@@ -1,7 +1,7 @@
 # Batched embed drops `meta.tokens` and image billed units
 
 **Library:** cohere-ai/cohere-python · **PR:** [#784](https://github.com/cohere-ai/cohere-python/pull/784)
-· **Status:** open, unreviewed as of 2026-07-28
+· **Status:** open, unreviewed as of 2026-07-29
 
 ## What's wrong
 
@@ -48,7 +48,7 @@ that test fails immediately.
 
 `tokens` stays `None` when none of the input metas carried it, rather than building an
 `ApiMetaTokens(None, None)`. A merged response with no token counts then looks exactly as it does
-today — which is why the existing equality assertions in `test_embed_utils.py` needed no change.
+today, which is why the existing equality assertions in `test_embed_utils.py` needed no change.
 
 ## Reproduce
 
