@@ -22,7 +22,10 @@ sub-score averaged as a mismatch inside an array but ignored inside an object), 
 `pipecat#5188` (TTS characters dropped on every interrupted turn),
 `inspect_evals#2060` (livebench proof rearrangement divided the correctly placed steps by the
 length of the model's own answer instead of the ground truth, so a model that emitted one step
-of a ten step proof scored 1.0), and `deepeval#2995` (not a wrong number, a broken `npm ci`:
+of a ten step proof scored 1.0), and `llama_index#22548` (the same Anthropic cached-token defect a **third** time, after
+Pipecat and LiveKit: `TokenCountingHandler` reported 3 prompt tokens for a call that billed
+21503, and that number feeds a `token_budget` which therefore never fires), and
+`deepeval#2995` (not a wrong number, a broken `npm ci`:
 an unsatisfiable nested peer range took that repo's TypeScript CI down on every branch,
 including `main`, for two weeks).
 
