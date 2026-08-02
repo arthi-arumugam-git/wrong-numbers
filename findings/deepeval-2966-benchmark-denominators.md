@@ -1,7 +1,7 @@
 # Benchmark accuracy denominators don't match what was scored
 
 **Library:** confident-ai/deepeval · **PR:** [#2966](https://github.com/confident-ai/deepeval/pull/2966)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 Two benchmarks divide by a denominator that isn't the set of goldens they actually scored.
 Neither raises.

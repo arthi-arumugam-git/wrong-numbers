@@ -1,7 +1,7 @@
 # `timeout` accepted and never passed to the client
 
 **Library:** okareo-ai/okareo-python-sdk · **PR:** [#261](https://github.com/okareo-ai/okareo-python-sdk/pull/261)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 ## What's wrong
 

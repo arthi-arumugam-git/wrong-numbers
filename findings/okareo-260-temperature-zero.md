@@ -1,7 +1,7 @@
 # `temperature=0` overwritten by the class default
 
 **Library:** okareo-ai/okareo-python-sdk · **PR:** [#260](https://github.com/okareo-ai/okareo-python-sdk/pull/260)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 ## What's wrong
 

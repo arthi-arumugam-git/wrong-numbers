@@ -1,7 +1,7 @@
 # Mean metric divides by the unfiltered length
 
 **Library:** vellum-ai/vellum-python-sdks · **PR:** [#3741](https://github.com/vellum-ai/vellum-python-sdks/pull/3741)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 ## What's wrong
 

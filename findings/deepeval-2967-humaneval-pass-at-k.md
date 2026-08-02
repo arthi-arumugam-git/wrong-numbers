@@ -1,7 +1,7 @@
 # HumanEval collapses pass@k into pass@n
 
 **Library:** confident-ai/deepeval · **PR:** [#2967](https://github.com/confident-ai/deepeval/pull/2967)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 ## What's wrong
 

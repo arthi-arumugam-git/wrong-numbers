@@ -1,7 +1,7 @@
 # LiteLLM tier rates never reach the cost manifest
 
 **Library:** Arize-ai/phoenix · **PR:** [#14761](https://github.com/Arize-ai/phoenix/pull/14761)
-· **Status:** open, unreviewed as of 2026-07-29 · Closes [#14314](https://github.com/Arize-ai/phoenix/issues/14314)
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02 · Closes [#14314](https://github.com/Arize-ai/phoenix/issues/14314)
 
 ## What's wrong
 

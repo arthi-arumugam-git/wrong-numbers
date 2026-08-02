@@ -1,7 +1,7 @@
 # Batched embed drops `meta.tokens` and image billed units
 
 **Library:** cohere-ai/cohere-python · **PR:** [#784](https://github.com/cohere-ai/cohere-python/pull/784)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 ## What's wrong
 

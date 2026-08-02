@@ -1,7 +1,7 @@
 # `save_csv` writes a blank row between every record on Windows
 
 **Library:** cohere-ai/cohere-python · **PR:** [#785](https://github.com/cohere-ai/cohere-python/pull/785)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 ## What's wrong
 

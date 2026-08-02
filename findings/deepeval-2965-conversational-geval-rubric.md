@@ -1,16 +1,16 @@
 # ConversationalGEval ignores the rubric range
 
 **Library:** confident-ai/deepeval · **PR:** [#2965](https://github.com/confident-ai/deepeval/pull/2965)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
 
 ## What's wrong
 
-`ConversationalGEval` accepts a rubric but hard-codes 0–10 in both the prompt template and the
+`ConversationalGEval` accepts a rubric but hard-codes 0-10 in both the prompt template and the
 normalizer. The raw score is divided by 10 whatever range the rubric declares.
 
 ## The number
 
-A perfect **5 on a 0–5 rubric** reports **0.5**.
+A perfect **5 on a 0-5 rubric** reports **0.5**.
 
 `GEval`, given the identical rubric and the identical raw score, reports **1.0**. Same library,
 two metrics, same input, different answer.

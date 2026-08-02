@@ -1,7 +1,7 @@
 # Higher pricing tiers unreachable on 24 endpoints
 
 **Library:** Helicone/helicone · **PR:** [#5737](https://github.com/Helicone/helicone/pull/5737)
-· **Status:** open, unreviewed as of 2026-07-29 · Fixes [#5690](https://github.com/Helicone/helicone/issues/5690)
+· **Status:** open, unreviewed by a human maintainer as of 2026-08-02 · Fixes [#5690](https://github.com/Helicone/helicone/issues/5690)
 
 This is the finding the whole write-up is built around.
 

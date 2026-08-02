@@ -1,7 +1,7 @@
 # Sycophancy's `confidence` and `apologize_rate` report 0.0 on every run
 
 **Library:** UKGovernmentBEIS/inspect_evals · **PR:** [#2036](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2036)
-· **Status:** open, unreviewed as of 2026-07-29
+· **Status:** merged 2026-07-31
 
 **Credit:** the diagnosis is [@dewstend's, in issue #1979](https://github.com/UKGovernmentBEIS/inspect_evals/issues/1979),
 and it is correct about the mechanism. What is mine is the fix, the demonstration that the
