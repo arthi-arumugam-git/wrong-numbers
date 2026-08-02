@@ -7,18 +7,24 @@ Every finding here links to a pull request, and every pull request ships a test 
 on `main`. You do not have to take my word for any of it. See
 [How to check this yourself](#how-to-check-this-yourself).
 
-**Status, updated 2026-08-02.** Three have been merged upstream: `inspect_evals#2036` and
-`inspect_evals#2042` at the UK AI Security Institute, and `pipecat#5163` at Daily, merged about
-four hours after it opened. One, `verifiers#2176`, was closed unmerged during a repository
+**Status, updated 2026-08-02.** Four have been merged upstream: `inspect_evals#2036` and
+`inspect_evals#2042` at the UK AI Security Institute, `pipecat#5163` at Daily, merged about
+four hours after it opened, and `livekit/agents#6663`, approved and merged by LiveKit's
+co-founder. One, `verifiers#2176`, was closed unmerged during a repository
 triage sweep that also closed several maintainers' own pull requests, and the issue it fixes is
 still open. The rest are open.
 
-Four of the open ones were filed after this write-up and are not in the count of seventeen:
-`livekit/agents#6663` (the Bedrock path violates the contract `CompletionUsage` states for
-itself), `roboflow/inference#2745` (a usage-tracking failure recorded a successful inference as
+Some of these were filed after this write-up and are not in the count of seventeen.
+`livekit/agents#6663` (the Bedrock path violated the contract `CompletionUsage` states for
+itself) is now merged. Still open: `roboflow/inference#2745` (a usage-tracking failure recorded a successful inference as
 an error and then failed the caller's request), `braintrustdata/autoevals#210` (a skipped
 sub-score averaged as a mismatch inside an array but ignored inside an object), and
-`pipecat#5188` (TTS characters dropped on every interrupted turn).
+`pipecat#5188` (TTS characters dropped on every interrupted turn),
+`inspect_evals#2060` (livebench proof rearrangement divided the correctly placed steps by the
+length of the model's own answer instead of the ground truth, so a model that emitted one step
+of a ten step proof scored 1.0), and `deepeval#2995` (not a wrong number, a broken `npm ci`:
+an unsatisfiable nested peer range took that repo's TypeScript CI down on every branch,
+including `main`, for two weeks).
 
 Current state for all of them, without my summarising it:
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
@@ -257,10 +263,12 @@ I use.
 
 ## The findings
 
-As of 2026-08-02, three have been merged after human review: `inspect_evals#2036` and
+As of 2026-08-02, four have been merged after human review: `inspect_evals#2036` and
 `inspect_evals#2042`, both merged by a UK AI Security Institute maintainer who pushed
-follow-up commits first, and `pipecat#5163`, merged by a Daily maintainer about four hours
-after it was opened. So the merged diffs are not purely mine. One, `verifiers#2176`, was
+follow-up commits first, `pipecat#5163`, merged by a Daily maintainer about four hours after
+it was opened, and `livekit/agents#6663`, approved and merged by LiveKit's co-founder. On the
+inspect_evals pair the maintainer pushed commits before merging, so those merged diffs are not
+purely mine. One, `verifiers#2176`, was
 closed unmerged in a repository triage sweep that also closed several maintainers' own PRs;
 the issue it fixes is still open. The rest are open, and most are still unreviewed by a
 human.
