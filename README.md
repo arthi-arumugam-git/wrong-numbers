@@ -1,6 +1,6 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-Twenty-five pull requests across fifteen companies. Sixteen of them are the same defect:
+Twenty-five pull requests across fifteen companies. Seventeen of them are the same defect:
 a number comes out wrong and nothing raises.
 
 Every finding here links to a pull request, and every pull request ships a test that fails
@@ -175,7 +175,7 @@ Full write-up: [`findings/not-a-bug-litellm-30135.md`](findings/not-a-bug-litell
 
 Both are in Pipecat, Daily's voice-agent framework, and both are the same shape as
 everything above. I'm adding them here rather than folding them into the count, because the
-sixteen were one week's sweep and these came later.
+seventeen were one week's sweep and these came later.
 
 The first is the cross-provider version. `LLMTokenUsage.total_tokens` did not mean the same
 thing depending on which service produced it. OpenAI and Google take the total straight from
@@ -238,8 +238,8 @@ happens if it's hit and whether anyone will ever know. In every case above, the 
 
 ## On the size of the claim
 
-Sixteen wrong numbers in thirteen libraries in a week is less impressive than it sounds, and
-it's worth saying so plainly. They are one bug pattern found sixteen times, not sixteen
+Seventeen wrong numbers in thirteen libraries in a week is less impressive than it sounds, and
+it's worth saying so plainly. They are one bug pattern found seventeen times, not seventeen
 independent investigations. Once you know the shape (a `default`, a truthiness check, a denominator that
 isn't the thing you counted) finding the next one is grep and forty minutes.
 
@@ -259,7 +259,7 @@ human.
 If you maintain one of these and I've got something wrong, open an issue here or comment on
 the PR and I'll fix or withdraw it.
 
-### Wrong numbers (16)
+### Wrong numbers (17)
 
 | # | Library | Finding | PR |
 |---|---|---|---|
@@ -279,11 +279,14 @@ the PR and I'll fix or withdraw it.
 | 14 | Logfire | [`AnthropicBedrock` calls carry tokens but never a cost](findings/logfire-2162-bedrock-cost-dropped.md) | [#2162](https://github.com/pydantic/logfire/pull/2162) |
 | 15 | genai-prices | [Writer Palmyra X4 and X5 on Bedrock resolve no price at all](findings/genai-prices-520-palmyra-bedrock.md) | [#520](https://github.com/pydantic/genai-prices/pull/520) |
 | 16 | respan | [Gemini thinking tokens land on no attribute at all](findings/respan-339-gemini-thinking-tokens.md) | [#339](https://github.com/respanai/respan/pull/339) |
+| 17 | inspect_evals | [BFCL scores an optional parameter at its own default as a disagreement](findings/inspect-evals-2042-bfcl-optional-defaults.md) | [#2042](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2042) |
 
 Credit where it is not mine: the diagnosis behind #5 is
-[@dewstend's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/1979). What is mine there
-is the fix, the demonstration that the fix the issue proposes reports a different wrong number,
-the repo-wide sweep and the tests. Every other finding on this page is my own.
+[@dewstend's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/1979), and the defect and
+examples behind #17 are [@wise-east's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/2004).
+What is mine on both is the fix, the sweep that measured how far it reaches, and the tests; on
+#5 also the demonstration that the fix the issue proposes reports a different wrong number.
+Every other finding on this page is my own.
 
 ### The same silence, elsewhere (5)
 
