@@ -1,6 +1,6 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-Twenty-five pull requests across fifteen companies. Seventeen of them are the same defect:
+Twenty-seven pull requests across seventeen companies. Seventeen of them are the same defect:
 a number comes out wrong and nothing raises.
 
 Every finding here links to a pull request, and every pull request ships a test that fails
@@ -8,10 +8,19 @@ on `main`. You do not have to take my word for any of it. See
 [How to check this yourself](#how-to-check-this-yourself).
 
 **Status, updated 2026-08-02.** Three have been merged upstream: `inspect_evals#2036` and
-`inspect_evals#2042` at the UK AI Security Institute, and `pipecat#5163` at Daily. One,
-`verifiers#2176`, was closed unmerged during a repository triage sweep, and the issue it
-fixes is still open. The rest are open. Current state for all of them, without my
-summarising it:
+`inspect_evals#2042` at the UK AI Security Institute, and `pipecat#5163` at Daily, merged about
+four hours after it opened. One, `verifiers#2176`, was closed unmerged during a repository
+triage sweep that also closed several maintainers' own pull requests, and the issue it fixes is
+still open. The rest are open.
+
+Four of the open ones were filed after this write-up and are not in the count of seventeen:
+`livekit/agents#6663` (the Bedrock path violates the contract `CompletionUsage` states for
+itself), `roboflow/inference#2745` (a usage-tracking failure recorded a successful inference as
+an error and then failed the caller's request), `braintrustdata/autoevals#210` (a skipped
+sub-score averaged as a mismatch inside an array but ignored inside an object), and
+`pipecat#5188` (TTS characters dropped on every interrupted turn).
+
+Current state for all of them, without my summarising it:
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
 
 ---
