@@ -1,11 +1,18 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-Twenty-one pull requests across thirteen companies. Sixteen of them are the same defect:
+Twenty-five pull requests across fifteen companies. Sixteen of them are the same defect:
 a number comes out wrong and nothing raises.
 
-Every finding here links to an open pull request, and every pull request ships a test
-that fails on `main`. You do not have to take my word for any of it. See
+Every finding here links to a pull request, and every pull request ships a test that fails
+on `main`. You do not have to take my word for any of it. See
 [How to check this yourself](#how-to-check-this-yourself).
+
+**Status, updated 2026-08-02.** Three have been merged upstream: `inspect_evals#2036` and
+`inspect_evals#2042` at the UK AI Security Institute, and `pipecat#5163` at Daily. One,
+`verifiers#2176`, was closed unmerged during a repository triage sweep, and the issue it
+fixes is still open. The rest are open. Current state for all of them, without my
+summarising it:
+[`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
 
 ---
 
@@ -28,9 +35,9 @@ and is reported as `1.0`. A model that stumbles onto each solution once in two h
 scores 100% on HumanEval. That's the benchmark people put in papers.
 
 I spent a week reading the numeric paths of LLM eval, tracing and cost-tracking libraries.
-Twenty-one pull requests came out of it: deepeval, Phoenix, LiteLLM, Helicone, Langfuse,
+Twenty-five pull requests came out of it: deepeval, Phoenix, LiteLLM, Helicone, Langfuse,
 OpenLLMetry, Judgeval, Vellum, Okareo, the Cohere SDK, Pydantic's Logfire and genai-prices,
-respan, and UK AISI's inspect_evals.
+respan, UK AISI's inspect_evals, Pipecat, and Prime Intellect's verifiers.
 
 What I want to write about isn't the individual bugs. It's that they're all the same shape.
 
@@ -83,8 +90,8 @@ That's the whole thing in one function. Every other item on the list is a varian
   deterministic driver quietly stops being deterministic.
 - **A fallback that substitutes a default.** Helicone's `return () => 0`.
 - **A guard that was correct in one code path and never applied to its twin.**
-  `ConversationalGEval` accepts a rubric but hard-codes 0–10 in both the prompt template and the
-  normalizer, so a perfect 5 on a 0–5 rubric reports 0.5, while `GEval` given the identical
+  `ConversationalGEval` accepts a rubric but hard-codes 0-10 in both the prompt template and the
+  normalizer, so a perfect 5 on a 0-5 rubric reports 0.5, while `GEval` given the identical
   rubric and the identical raw score reports 1.0. That's not an oversight nobody caught.
   deepeval fixed exactly this in `g_eval.py` in PR #1915, merged last August. The fix was
   correct. It just never reached the conversational variant, and the shared `get_score_range`
@@ -164,6 +171,43 @@ assert, including against yourself.
 
 Full write-up: [`findings/not-a-bug-litellm-30135.md`](findings/not-a-bug-litellm-30135.md).
 
+## Two more, found after this was written
+
+Both are in Pipecat, Daily's voice-agent framework, and both are the same shape as
+everything above. I'm adding them here rather than folding them into the count, because the
+sixteen were one week's sweep and these came later.
+
+The first is the cross-provider version. `LLMTokenUsage.total_tokens` did not mean the same
+thing depending on which service produced it. OpenAI and Google take the total straight from
+the provider, and both count cache reads inside it. The Anthropic and Bedrock services
+computed `prompt_tokens + completion_tokens` locally, against an input count that is already
+net of the prompt cache, so every cached token fell out of the total. In a voice agent the
+system prompt and the conversation history are re-read from cache every turn, so cache reads
+dominate within a few turns: a turn billed for 2100 input tokens with 2000 of them cached
+reported 150.
+
+What makes it a good example of the class is that the correct sum was already in the same
+function. `_process_context` computes
+`prompt_tokens + cache_creation_input_tokens + cache_read_input_tokens` for its own caching
+threshold check, on the same values, a few lines above the reporting call that left both
+cache terms out. Nothing reconciled the two.
+[pipecat#5163](https://github.com/pipecat-ai/pipecat/pull/5163), merged.
+
+The second is a drift bug, and it is the one I'd point at if I could only keep one. In
+token-streaming mode the per-token usage calls short-circuit and the text accumulates into
+`_streamed_text`, reported once when the turn flushes. `_handle_interruption` cleared that
+accumulator without reporting it, so an interrupted turn contributed nothing at all, for
+text the provider had already been sent and billed for. Barge-in is not an edge case in a
+voice agent, and token streaming is the default for one of the TTS services.
+
+The cause is still readable in the source. The comment where the accumulator is filled says
+it is there "for a single debug log at flush time". That was true when the interruption
+handler was written, and dropping a debug buffer on interruption was correct. The
+accumulator later became the input to the billing metric, and the interruption path was
+never revisited. Nobody wrote a bug; the meaning of a variable moved underneath a line that
+stayed correct-looking.
+[pipecat#5188](https://github.com/pipecat-ai/pipecat/pull/5188).
+
 ## Why this class in particular
 
 A crash gets fixed in an hour. Someone's build goes red, there's a stack trace, and the stack
@@ -204,9 +248,16 @@ I use.
 
 ## The findings
 
-Every PR is open and unreviewed by a human maintainer as of 2026-07-29. None are merged. If you
-maintain one of these and I've got something wrong, open an issue here or comment on the PR and
-I'll fix or withdraw it.
+As of 2026-08-02, three have been merged after human review: `inspect_evals#2036` and
+`inspect_evals#2042`, both merged by a UK AI Security Institute maintainer who pushed
+follow-up commits first, and `pipecat#5163`, merged by a Daily maintainer about four hours
+after it was opened. So the merged diffs are not purely mine. One, `verifiers#2176`, was
+closed unmerged in a repository triage sweep that also closed several maintainers' own PRs;
+the issue it fixes is still open. The rest are open, and most are still unreviewed by a
+human.
+
+If you maintain one of these and I've got something wrong, open an issue here or comment on
+the PR and I'll fix or withdraw it.
 
 ### Wrong numbers (16)
 
