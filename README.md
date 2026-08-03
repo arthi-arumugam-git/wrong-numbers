@@ -1,7 +1,12 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-Twenty-seven pull requests across seventeen companies. Seventeen of them are the same defect:
-a number comes out wrong and nothing raises.
+Thirty-eight pull requests across twenty-four organisations, four of them merged upstream.
+Most are the same defect: a number comes out wrong and nothing raises.
+
+Counts regenerated from the GitHub API on 2026-08-03, not from this file. The numbers below
+that say "seventeen" are deliberate and unchanged: they describe one week's sweep, and later
+findings are listed rather than folded into it. A page arguing that stale numbers go unnoticed
+should not be running a stale number of its own.
 
 Every finding here links to a pull request, and every pull request ships a test that fails
 on `main`. You do not have to take my word for any of it. See
@@ -21,7 +26,7 @@ contract quietly disagreeing:
   idempotence guard, so an already-wrapped URL got proxied twice, and the gateway's base path
   was silently dropped, sending weights traffic somewhere the server traffic did not go.
 
-**Status, updated 2026-08-02.** Four have been merged upstream: `inspect_evals#2036` and
+**Status, updated 2026-08-03.** Four have been merged upstream: `inspect_evals#2036` and
 `inspect_evals#2042` at the UK AI Security Institute, `pipecat#5163` at Daily, merged about
 four hours after it opened, and `livekit/agents#6663`, approved and merged by LiveKit's
 co-founder. One, `verifiers#2176`, was closed unmerged during a repository
