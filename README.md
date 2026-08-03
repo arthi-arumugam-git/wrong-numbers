@@ -7,6 +7,20 @@ Every finding here links to a pull request, and every pull request ships a test 
 on `main`. You do not have to take my word for any of it. See
 [How to check this yourself](#how-to-check-this-yourself).
 
+**Same defect, two of three files, twice in one week.** Both of these are a fix that landed on
+some of a set of near-identical files and not the rest, leaving two implementations of one
+contract quietly disagreeing:
+
+- [`supervision#2468`](findings/supervision-2468-recall-prediction-only-classes.md) closes
+  `supervision#2467`. `Precision` and `F1Score` were taught to track classes that appear only in
+  predictions; `Recall` was missed, so the three metrics disagree about which classes exist for
+  identical input and their per-class arrays cannot be zipped. `test_recall.py` is also the only
+  metric test file with no coverage for that case.
+- [`inference#2748`](findings/inference-2748-gateway-proxy-parity.md) closes `inference#2662`,
+  filed by Roboflow. A secure-gateway URL builder had drifted from its sibling twice: no
+  idempotence guard, so an already-wrapped URL got proxied twice, and the gateway's base path
+  was silently dropped, sending weights traffic somewhere the server traffic did not go.
+
 **Status, updated 2026-08-02.** Four have been merged upstream: `inspect_evals#2036` and
 `inspect_evals#2042` at the UK AI Security Institute, `pipecat#5163` at Daily, merged about
 four hours after it opened, and `livekit/agents#6663`, approved and merged by LiveKit's
