@@ -11,6 +11,34 @@ unnoticed has no business carrying one. See
 
 **[Jump to the full index of every finding and its status.](#the-findings)**
 
+## Run it against your own repository
+
+The defect below was found by hand five times. `cachecheck.py` is the check that would have
+found each of them in a second. No dependencies, exits 1 on a finding so it works as a CI
+gate:
+
+```bash
+curl -O https://raw.githubusercontent.com/arthi-arumugam-git/wrong-numbers/main/cachecheck.py
+python cachecheck.py path/to/your/repo
+```
+
+It looks for three things, each taken from a defect in a shipped library:
+
+| Rule | What it means |
+|---|---|
+| `cache-blind-total` | a total computed as input plus output, in a file that never reads `cache_read_input_tokens` |
+| `cache-read-never-read` | arithmetic on `input_tokens` with the cache counter read nowhere |
+| `cache-creation-ignored` | cache reads handled, cache **writes** not, and Anthropic bills writes above base rate |
+
+It deliberately stays quiet on OpenAI-shaped usage, where `cached_tokens` already sits inside
+`prompt_tokens` and adding it would double count. That distinction is the whole reason the
+obvious fix to this bug is wrong.
+
+Validated against `mcp-use` at the commit before the fix (2 findings, both real), the same
+tree after it (silent), and 280 unrelated files (silent).
+
+---
+
 **The fifth framework, and the worst variant of the five.**
 [`mcp-use#2127`](findings/mcp-use-2127-streamed-usage-erased.md). Anthropic's streaming
 `message_delta` carries `output_tokens` and nothing else, and the usage parser returns every
