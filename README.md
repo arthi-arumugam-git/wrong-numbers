@@ -1,16 +1,24 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-Thirty-eight pull requests across twenty-four organisations, four of them merged upstream.
-Most are the same defect: a number comes out wrong and nothing raises.
+**39 pull requests across 25 organisations. 5 merged upstream after human review.**
+Most are one defect: a number comes out wrong and nothing raises.
 
-Counts regenerated from the GitHub API on 2026-08-03, not from this file. The numbers below
-that say "seventeen" are deliberate and unchanged: they describe one week's sweep, and later
-findings are listed rather than folded into it. A page arguing that stale numbers go unnoticed
-should not be running a stale number of its own.
-
-Every finding here links to a pull request, and every pull request ships a test that fails
-on `main`. You do not have to take my word for any of it. See
+Every finding links to a pull request, and every pull request ships a test that fails on
+`main`. You do not have to take my word for any of it, and the index below is generated from
+the GitHub API rather than maintained by hand, because a page arguing that stale numbers go
+unnoticed has no business carrying one. See
 [How to check this yourself](#how-to-check-this-yourself).
+
+**[Jump to the full index of every finding and its status.](#the-findings)**
+
+**The fifth framework, and the worst variant of the five.**
+[`mcp-use#2127`](findings/mcp-use-2127-streamed-usage-erased.md). Anthropic's streaming
+`message_delta` carries `output_tokens` and nothing else, and the usage parser returns every
+key with the absent ones set to `undefined`, so a spread merge overwrote the counters captured
+at `message_start`. After any streamed call the input side of the accounting was not wrong, it
+was **gone**: an end-to-end test reports `totalTokens: undefined` on the base commit. Their
+review then surfaced a third copy of the same arithmetic that I had missed, which is written
+up honestly in the finding.
 
 **Same defect, two of three files, twice in one week.** Both of these are a fix that landed on
 some of a set of near-identical files and not the rest, leaving two implementations of one
@@ -26,27 +34,13 @@ contract quietly disagreeing:
   idempotence guard, so an already-wrapped URL got proxied twice, and the gateway's base path
   was silently dropped, sending weights traffic somewhere the server traffic did not go.
 
-**Status, updated 2026-08-03.** Four have been merged upstream: `inspect_evals#2036` and
-`inspect_evals#2042` at the UK AI Security Institute, `pipecat#5163` at Daily, merged about
-four hours after it opened, and `livekit/agents#6663`, approved and merged by LiveKit's
-co-founder. One, `verifiers#2176`, was closed unmerged during a repository
-triage sweep that also closed several maintainers' own pull requests, and the issue it fixes is
-still open. The rest are open.
-
-Some of these were filed after this write-up and are not in the count of seventeen.
-`livekit/agents#6663` (the Bedrock path violated the contract `CompletionUsage` states for
-itself) is now merged. Still open: `roboflow/inference#2745` (a usage-tracking failure recorded a successful inference as
-an error and then failed the caller's request), `braintrustdata/autoevals#210` (a skipped
-sub-score averaged as a mismatch inside an array but ignored inside an object), and
-`pipecat#5188` (TTS characters dropped on every interrupted turn),
-`inspect_evals#2060` (livebench proof rearrangement divided the correctly placed steps by the
-length of the model's own answer instead of the ground truth, so a model that emitted one step
-of a ten step proof scored 1.0), and `llama_index#22548` (the same Anthropic cached-token defect a **third** time, after
-Pipecat and LiveKit: `TokenCountingHandler` reported 3 prompt tokens for a call that billed
-21503, and that number feeds a `token_budget` which therefore never fires), and
-`deepeval#2995` (not a wrong number, a broken `npm ci`:
-an unsatisfiable nested peer range took that repo's TypeScript CI down on every branch,
-including `main`, for two weeks).
+**Status is in the index below, per finding, generated from the API.** Of the five merged,
+`inspect_evals#2036` and `#2042` went in at the UK AI Security Institute, `pipecat#5163` at
+Daily about four hours after it opened, `livekit/agents#6663` was approved and merged by
+LiveKit's co-founder, and `supervision#2468` by a Roboflow maintainer whose review caught a
+real hole in my first attempt. One, `verifiers#2176`, was closed unmerged during a triage
+sweep that also closed several maintainers' own pull requests; the issue it fixes is still
+open.
 
 Current state for all of them, without my summarising it:
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
@@ -208,43 +202,6 @@ assert, including against yourself.
 
 Full write-up: [`findings/not-a-bug-litellm-30135.md`](findings/not-a-bug-litellm-30135.md).
 
-## Two more, found after this was written
-
-Both are in Pipecat, Daily's voice-agent framework, and both are the same shape as
-everything above. I'm adding them here rather than folding them into the count, because the
-seventeen were one week's sweep and these came later.
-
-The first is the cross-provider version. `LLMTokenUsage.total_tokens` did not mean the same
-thing depending on which service produced it. OpenAI and Google take the total straight from
-the provider, and both count cache reads inside it. The Anthropic and Bedrock services
-computed `prompt_tokens + completion_tokens` locally, against an input count that is already
-net of the prompt cache, so every cached token fell out of the total. In a voice agent the
-system prompt and the conversation history are re-read from cache every turn, so cache reads
-dominate within a few turns: a turn billed for 2100 input tokens with 2000 of them cached
-reported 150.
-
-What makes it a good example of the class is that the correct sum was already in the same
-function. `_process_context` computes
-`prompt_tokens + cache_creation_input_tokens + cache_read_input_tokens` for its own caching
-threshold check, on the same values, a few lines above the reporting call that left both
-cache terms out. Nothing reconciled the two.
-[pipecat#5163](https://github.com/pipecat-ai/pipecat/pull/5163), merged.
-
-The second is a drift bug, and it is the one I'd point at if I could only keep one. In
-token-streaming mode the per-token usage calls short-circuit and the text accumulates into
-`_streamed_text`, reported once when the turn flushes. `_handle_interruption` cleared that
-accumulator without reporting it, so an interrupted turn contributed nothing at all, for
-text the provider had already been sent and billed for. Barge-in is not an edge case in a
-voice agent, and token streaming is the default for one of the TTS services.
-
-The cause is still readable in the source. The comment where the accumulator is filled says
-it is there "for a single debug log at flush time". That was true when the interruption
-handler was written, and dropping a debug buffer on interruption was correct. The
-accumulator later became the input to the billing metric, and the interruption path was
-never revisited. Nobody wrote a bug; the meaning of a variable moved underneath a line that
-stayed correct-looking.
-[pipecat#5188](https://github.com/pipecat-ai/pipecat/pull/5188).
-
 ## Why this class in particular
 
 A crash gets fixed in an hour. Someone's build goes red, there's a stack trace, and the stack
@@ -275,9 +232,9 @@ happens if it's hit and whether anyone will ever know. In every case above, the 
 
 ## On the size of the claim
 
-Seventeen wrong numbers in thirteen libraries in a week is less impressive than it sounds, and
-it's worth saying so plainly. They are one bug pattern found seventeen times, not seventeen
-independent investigations. Once you know the shape (a `default`, a truthiness check, a denominator that
+Thirty-odd wrong numbers across twenty-five organisations in a month is less impressive than
+it sounds, and it's worth saying so plainly. They are one bug pattern found repeatedly, not
+thirty independent investigations. Once you know the shape (a `default`, a truthiness check, a denominator that
 isn't the thing you counted) finding the next one is grep and forty minutes.
 
 The sample is also small and it is not random. I picked these libraries because they're the ones
@@ -298,50 +255,65 @@ human.
 If you maintain one of these and I've got something wrong, open an issue here or comment on
 the PR and I'll fix or withdraw it.
 
-### Wrong numbers (17)
+**39 pull requests across 25 organisations. 5 merged upstream after human review.**
 
-| # | Library | Finding | PR |
+| Status | Where | What was wrong | PR |
 |---|---|---|---|
-| 1 | deepeval | [HumanEval collapses pass@k into pass@n](findings/deepeval-2967-humaneval-pass-at-k.md) | [#2967](https://github.com/confident-ai/deepeval/pull/2967) |
-| 2 | deepeval | [Benchmark accuracy denominators don't match what was scored](findings/deepeval-2966-benchmark-denominators.md) | [#2966](https://github.com/confident-ai/deepeval/pull/2966) |
-| 3 | deepeval | [ConversationalGEval ignores the rubric range](findings/deepeval-2965-conversational-geval-rubric.md) | [#2965](https://github.com/confident-ai/deepeval/pull/2965) |
-| 4 | deepeval | [ToolUseMetric scores 0 when no tool was needed](findings/deepeval-2968-tool-use-metric.md) | [#2968](https://github.com/confident-ai/deepeval/pull/2968) |
-| 5 | inspect_evals | [Sycophancy's `confidence` and `apologize_rate` report 0.0 on every run](findings/inspect-evals-2036-sycophancy-metrics.md) | [#2036](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2036) |
-| 6 | Phoenix | [LiteLLM tier rates never reach the cost manifest](findings/phoenix-14761-tier-rates.md) | [#14761](https://github.com/Arize-ai/phoenix/pull/14761) |
-| 7 | Helicone | [Higher pricing tiers unreachable on 24 endpoints](findings/helicone-5737-unreachable-tiers.md) | [#5737](https://github.com/Helicone/helicone/pull/5737) |
-| 8 | LiteLLM | [DashScope tiers each token category independently](findings/litellm-34760-dashscope-tiers.md) | [#34760](https://github.com/BerriAI/litellm/pull/34760) |
-| 9 | OpenLLMetry | [Streamed output tokens double-counted](findings/openllmetry-4377-double-counted-tokens.md) | [#4377](https://github.com/traceloop/openllmetry/pull/4377) |
-| 10 | Langfuse | [Cost dropped when usage is a dict or cost is an int](findings/langfuse-1781-dropped-cost.md) | [#1781](https://github.com/langfuse/langfuse-python/pull/1781) |
-| 11 | Vellum | [Mean metric divides by the unfiltered length](findings/vellum-3741-mean-denominator.md) | [#3741](https://github.com/vellum-ai/vellum-python-sdks/pull/3741) |
-| 12 | Okareo | [`temperature=0` overwritten by the class default](findings/okareo-260-temperature-zero.md) | [#260](https://github.com/okareo-ai/okareo-python-sdk/pull/260) |
-| 13 | Cohere | [Batched embed drops `meta.tokens` and image billed units](findings/cohere-784-embed-meta-dropped.md) | [#784](https://github.com/cohere-ai/cohere-python/pull/784) |
-| 14 | Logfire | [`AnthropicBedrock` calls carry tokens but never a cost](findings/logfire-2162-bedrock-cost-dropped.md) | [#2162](https://github.com/pydantic/logfire/pull/2162) |
-| 15 | genai-prices | [Writer Palmyra X4 and X5 on Bedrock resolve no price at all](findings/genai-prices-520-palmyra-bedrock.md) | [#520](https://github.com/pydantic/genai-prices/pull/520) |
-| 16 | respan | [Gemini thinking tokens land on no attribute at all](findings/respan-339-gemini-thinking-tokens.md) | [#339](https://github.com/respanai/respan/pull/339) |
-| 17 | inspect_evals | [BFCL scores an optional parameter at its own default as a disagreement](findings/inspect-evals-2042-bfcl-optional-defaults.md) | [#2042](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2042) |
+| **merged** | `roboflow/supervision` | track prediction-only classes in Recall | [#2468](https://github.com/roboflow/supervision/pull/2468) |
+| **merged** | `livekit/agents` | count cached tokens in Bedrock's prompt_tokens | [#6663](https://github.com/livekit/agents/pull/6663) |
+| **merged** | `UKGovernmentBEIS/inspect_evals` | stop penalising optional parameters at their schema default | [#2042](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2042) |
+| **merged** | `UKGovernmentBEIS/inspect_evals` | restore the denominator on confidence and apologize_rate | [#2036](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2036) |
+| **merged** | `pipecat-ai/pipecat` | count cached input tokens in total_tokens for Anthropic and Bedrock | [#5163](https://github.com/pipecat-ai/pipecat/pull/5163) |
+| open | `roboflow/inference` | align weights proxy builder with wrap_url (#2662) | [#2748](https://github.com/roboflow/inference/pull/2748) |
+| open | `mcp-use/mcp-use` | count Anthropic cache tokens and stop message_delta erasing usage | [#2127](https://github.com/mcp-use/mcp-use/pull/2127) |
+| open | `roboflow/inference` | stop usage tracking failures from failing the inference call | [#2745](https://github.com/roboflow/inference/pull/2745) |
+| open | `braintrustdata/autoevals` | stop a skipped sub-score being averaged as a mismatch | [#210](https://github.com/braintrustdata/autoevals/pull/210) |
+| open | `UKGovernmentBEIS/inspect_evals` | score proof rearrangement against the ground truth length | [#2060](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2060) |
+| open | `confident-ai/deepeval` | unbreak npm ci by aligning the ai devDependency with the mastra peer range | [#2995](https://github.com/confident-ai/deepeval/pull/2995) |
+| open | `run-llama/llama_index` | count Anthropic cached prompt tokens in TokenCountingHandler | [#22548](https://github.com/run-llama/llama_index/pull/22548) |
+| open | `deepset-ai/haystack-core-integrations` | include cached tokens in the OpenAI-compatible prompt_tokens | [#3717](https://github.com/deepset-ai/haystack-core-integrations/pull/3717) |
+| open | `reef-technologies/django-business-metrics` | the documented collection timeout can never fire, and one failing metric blanks the whol | [#8](https://github.com/reef-technologies/django-business-metrics/pull/8) |
+| open | `pipecat-ai/pipecat` | report accumulated TTS usage when a turn is interrupted | [#5188](https://github.com/pipecat-ai/pipecat/pull/5188) |
+| closed | `PrimeIntellect-ai/verifiers` | fall back to loopback TCP where zmq has no ipc transport | [#2176](https://github.com/PrimeIntellect-ai/verifiers/pull/2176) |
+| open | `pydantic/logfire` | price Bedrock calls under the aws provider | [#2162](https://github.com/pydantic/logfire/pull/2162) |
+| open | `respanai/respan` | fold Gemini thinking tokens into the output token count | [#339](https://github.com/respanai/respan/pull/339) |
+| open | `pydantic/genai-prices` | Add AWS Bedrock prices for Writer Palmyra X4 and X5 | [#520](https://github.com/pydantic/genai-prices/pull/520) |
+| open | `JudgmentLabs/judgeval` | fix: don't adopt a foreign global OTel span as a Judgment parent | [#769](https://github.com/JudgmentLabs/judgeval/pull/769) |
+| open | `Arize-ai/phoenix` | carry LiteLLM above_NNNk tier rates into the manifest | [#14761](https://github.com/Arize-ai/phoenix/pull/14761) |
+| open | `okareo-ai/okareo-python-sdk` | keep temperature=0 when reading a driver from the API | [#260](https://github.com/okareo-ai/okareo-python-sdk/pull/260) |
+| open | `okareo-ai/okareo-python-sdk` | pass timeout through to the HTTP client | [#261](https://github.com/okareo-ai/okareo-python-sdk/pull/261) |
+| open | `confident-ai/deepeval` | normalize ConversationalGEval score against the rubric range | [#2965](https://github.com/confident-ai/deepeval/pull/2965) |
+| open | `confident-ai/deepeval` | correct accuracy denominators in EquityMedQA and GSM8K | [#2966](https://github.com/confident-ai/deepeval/pull/2966) |
+| open | `confident-ai/deepeval` | stop HumanEval collapsing pass@k into pass@n | [#2967](https://github.com/confident-ai/deepeval/pull/2967) |
+| open | `confident-ai/deepeval` | score ToolUseMetric correctly when no tool was needed | [#2968](https://github.com/confident-ai/deepeval/pull/2968) |
+| open | `BerriAI/litellm` | select one pricing tier from request input size | [#34760](https://github.com/BerriAI/litellm/pull/34760) |
+| open | `Helicone/helicone` | reach higher pricing tiers on non-tiered providers | [#5737](https://github.com/Helicone/helicone/pull/5737) |
+| open | `BerriAI/litellm` | emit streamed tool calls instead of raw JSON content | [#34769](https://github.com/BerriAI/litellm/pull/34769) |
+| open | `BerriAI/litellm` | start on consoles that cannot encode the startup banner | [#34770](https://github.com/BerriAI/litellm/pull/34770) |
+| open | `cohere-ai/cohere-python` | batched embed drops meta.tokens and image billed units | [#784](https://github.com/cohere-ai/cohere-python/pull/784) |
+| open | `cohere-ai/cohere-python` | save_csv writes a blank row between every record on Windows | [#785](https://github.com/cohere-ai/cohere-python/pull/785) |
+| open | `langfuse/langfuse-python` | stop dropping cost when usage is a dict or cost is an int | [#1781](https://github.com/langfuse/langfuse-python/pull/1781) |
+| open | `vellum-ai/vellum-python-sdks` | Exclude unpopulated values from get_mean_metric_output denominator | [#3741](https://github.com/vellum-ai/vellum-python-sdks/pull/3741) |
+| open | `traceloop/openllmetry` | stop double-counting output tokens on streamed messages | [#4377](https://github.com/traceloop/openllmetry/pull/4377) |
+| open | `pingcap/ossinsight` | Add whatbroke to AI Evaluation & Testing collection | [#3102](https://github.com/pingcap/ossinsight/pull/3102) |
+| open | `ollama/ollama` | Add whatbroke to community integrations | [#17344](https://github.com/ollama/ollama/pull/17344) |
+| closed | `apache/superset` | add column required validation for filter_select | [#33377](https://github.com/apache/superset/pull/33377) |
 
-Credit where it is not mine: the diagnosis behind #5 is
-[@dewstend's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/1979), and the defect and
-examples behind #17 are [@wise-east's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/2004).
-What is mine on both is the fix, the sweep that measured how far it reaches, and the tests; on
-#5 also the demonstration that the fix the issue proposes reports a different wrong number.
-Every other finding on this page is my own.
+Credit where it is not mine: the diagnosis behind `inspect_evals#2036` is
+[@dewstend's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/1979), and the defect
+and examples behind `inspect_evals#2042` are
+[@wise-east's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/2004). What is mine on
+both is the fix, the sweep that measured how far it reaches, and the tests; on #2036 also the
+demonstration that the fix the issue proposes reports a *different* wrong number, 0.15 against
+a correct 0.2727. Every other finding on this page is my own.
 
-### The same silence, elsewhere (5)
+One is written up as a **negative result**:
+[LiteLLM #30135](findings/not-a-bug-litellm-30135.md), a reported bug chased, reproduced, and
+shown not to be a bug at all. It is here at the same length as the real ones, because a record
+that only ever confirms is not evidence of a working method.
 
-| # | Library | Finding | PR |
-|---|---|---|---|
-| 17 | LiteLLM | [`ollama/` drops every tool call when `stream=true`](findings/litellm-34769-ollama-tool-calls.md) | [#34769](https://github.com/BerriAI/litellm/pull/34769) |
-| 18 | Judgeval | [A foreign global OTel span is adopted as parent](findings/judgeval-769-foreign-parent-span.md) | [#769](https://github.com/JudgmentLabs/judgeval/pull/769) |
-| 19 | Okareo | [`timeout` accepted and never passed to the client](findings/okareo-261-timeout-ignored.md) | [#261](https://github.com/okareo-ai/okareo-python-sdk/pull/261) |
-| 20 | Cohere | [`save_csv` writes a blank row between every record on Windows](findings/cohere-785-csv-blank-rows.md) | [#785](https://github.com/cohere-ai/cohere-python/pull/785) |
-| 21 | LiteLLM | [Proxy won't start on a console that can't encode the banner](findings/litellm-34770-banner-encoding.md) | [#34770](https://github.com/BerriAI/litellm/pull/34770) |
-
-### Investigated and not filed (1)
-
-| Library | Finding | Issue |
-|---|---|---|
-| LiteLLM | [Tier rates *are* applied; the reporter's evidence is a logging artifact](findings/not-a-bug-litellm-30135.md) | [#30135](https://github.com/BerriAI/litellm/issues/30135) |
+Long-form write-ups for the findings that have them are in
+[`findings/`](findings/), one file per defect.
 
 ## How to check this yourself
 
