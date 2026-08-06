@@ -1,6 +1,6 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-**39 pull requests across 25 organisations. 5 merged upstream after human review.**
+**42 pull requests across 28 organisations. 7 merged upstream after human review.**
 Most are one defect: a number comes out wrong and nothing raises.
 
 Every finding links to a pull request, and every pull request ships a test that fails on
@@ -283,10 +283,13 @@ human.
 If you maintain one of these and I've got something wrong, open an issue here or comment on
 the PR and I'll fix or withdraw it.
 
-**39 pull requests across 25 organisations. 5 merged upstream after human review.**
+**42 pull requests across 28 organisations. 7 merged upstream after human review.**
 
 | Status | Where | What was wrong | PR |
 |---|---|---|---|
+| open | `armature-tech/mcp-analytics-python` | stop the overflow warning reporting a count that is always 1 | [#3](https://github.com/armature-tech/mcp-analytics-python/pull/3) |
+| open | `crewAIInc/crewAI` | count Anthropic cached input tokens in the reported totals | [#6838](https://github.com/crewAIInc/crewAI/pull/6838) |
+| open | `voxel51/fiftyone` | compute per-sample Dice from the sample's own confusion matrix | [#8195](https://github.com/voxel51/fiftyone/pull/8195) |
 | **merged** | `roboflow/supervision` | track prediction-only classes in Recall | [#2468](https://github.com/roboflow/supervision/pull/2468) |
 | **merged** | `livekit/agents` | count cached tokens in Bedrock's prompt_tokens | [#6663](https://github.com/livekit/agents/pull/6663) |
 | **merged** | `UKGovernmentBEIS/inspect_evals` | stop penalising optional parameters at their schema default | [#2042](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2042) |
@@ -297,15 +300,15 @@ the PR and I'll fix or withdraw it.
 | open | `roboflow/inference` | stop usage tracking failures from failing the inference call | [#2745](https://github.com/roboflow/inference/pull/2745) |
 | open | `braintrustdata/autoevals` | stop a skipped sub-score being averaged as a mismatch | [#210](https://github.com/braintrustdata/autoevals/pull/210) |
 | open | `UKGovernmentBEIS/inspect_evals` | score proof rearrangement against the ground truth length | [#2060](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2060) |
-| open | `confident-ai/deepeval` | unbreak npm ci by aligning the ai devDependency with the mastra peer range | [#2995](https://github.com/confident-ai/deepeval/pull/2995) |
-| open | `run-llama/llama_index` | count Anthropic cached prompt tokens in TokenCountingHandler | [#22548](https://github.com/run-llama/llama_index/pull/22548) |
-| open | `deepset-ai/haystack-core-integrations` | include cached tokens in the OpenAI-compatible prompt_tokens | [#3717](https://github.com/deepset-ai/haystack-core-integrations/pull/3717) |
+| closed | `confident-ai/deepeval` | unbreak npm ci, closed as obsolete once upstream fixed the lockfile | [#2995](https://github.com/confident-ai/deepeval/pull/2995) |
+| closed | `run-llama/llama_index` | count Anthropic cached prompt tokens in TokenCountingHandler | [#22548](https://github.com/run-llama/llama_index/pull/22548) |
+| **merged** | `deepset-ai/haystack-core-integrations` | include cached tokens in the OpenAI-compatible prompt_tokens | [#3717](https://github.com/deepset-ai/haystack-core-integrations/pull/3717) |
 | open | `reef-technologies/django-business-metrics` | the documented collection timeout can never fire, and one failing metric blanks the whol | [#8](https://github.com/reef-technologies/django-business-metrics/pull/8) |
 | open | `pipecat-ai/pipecat` | report accumulated TTS usage when a turn is interrupted | [#5188](https://github.com/pipecat-ai/pipecat/pull/5188) |
 | closed | `PrimeIntellect-ai/verifiers` | fall back to loopback TCP where zmq has no ipc transport | [#2176](https://github.com/PrimeIntellect-ai/verifiers/pull/2176) |
 | open | `pydantic/logfire` | price Bedrock calls under the aws provider | [#2162](https://github.com/pydantic/logfire/pull/2162) |
 | open | `respanai/respan` | fold Gemini thinking tokens into the output token count | [#339](https://github.com/respanai/respan/pull/339) |
-| open | `pydantic/genai-prices` | Add AWS Bedrock prices for Writer Palmyra X4 and X5 | [#520](https://github.com/pydantic/genai-prices/pull/520) |
+| **merged** | `pydantic/genai-prices` | Add AWS Bedrock prices for Writer Palmyra X4 and X5 | [#520](https://github.com/pydantic/genai-prices/pull/520) |
 | open | `JudgmentLabs/judgeval` | fix: don't adopt a foreign global OTel span as a Judgment parent | [#769](https://github.com/JudgmentLabs/judgeval/pull/769) |
 | open | `Arize-ai/phoenix` | carry LiteLLM above_NNNk tier rates into the manifest | [#14761](https://github.com/Arize-ai/phoenix/pull/14761) |
 | open | `okareo-ai/okareo-python-sdk` | keep temperature=0 when reading a driver from the API | [#260](https://github.com/okareo-ai/okareo-python-sdk/pull/260) |
