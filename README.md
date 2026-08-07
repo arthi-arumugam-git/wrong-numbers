@@ -1,6 +1,6 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-**42 pull requests across 28 organisations. 7 merged upstream after human review.**
+**44 pull requests across 28 organisations. 8 merged upstream after human review.**
 Most are one defect: a number comes out wrong and nothing raises.
 
 Every finding links to a pull request, and every pull request ships a test that fails on
@@ -62,13 +62,14 @@ contract quietly disagreeing:
   idempotence guard, so an already-wrapped URL got proxied twice, and the gateway's base path
   was silently dropped, sending weights traffic somewhere the server traffic did not go.
 
-**Status is in the index below, per finding, generated from the API.** Of the five merged,
-`inspect_evals#2036` and `#2042` went in at the UK AI Security Institute, `pipecat#5163` at
-Daily about four hours after it opened, `livekit/agents#6663` was approved and merged by
-LiveKit's co-founder, and `supervision#2468` by a Roboflow maintainer whose review caught a
-real hole in my first attempt. One, `verifiers#2176`, was closed unmerged during a triage
-sweep that also closed several maintainers' own pull requests; the issue it fixes is still
-open.
+**Status is in the index below, per finding, generated from the API.** Of the eight merged,
+`inspect_evals#2036`, `#2042` and `#2097` went in at the UK AI Security Institute, `pipecat#5163`
+at Daily about four hours after it opened, `livekit/agents#6663` was approved and merged by
+LiveKit's co-founder, `supervision#2468` by a Roboflow maintainer whose review caught a real hole
+in my first attempt, `haystack-core-integrations#3717` at deepset after a round of requested
+changes, and `genai-prices#520` at Pydantic. Two, `verifiers#2176` and `respan#339`, were closed
+unmerged: the first in a triage sweep that also closed several maintainers' own pull requests, the
+second as superseded by another contributor who shipped the same fix first.
 
 Current state for all of them, without my summarising it:
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
@@ -270,47 +271,48 @@ I use.
 
 ## The findings
 
-As of 2026-08-02, four have been merged after human review: `inspect_evals#2036` and
-`inspect_evals#2042`, both merged by a UK AI Security Institute maintainer who pushed
-follow-up commits first, `pipecat#5163`, merged by a Daily maintainer about four hours after
-it was opened, and `livekit/agents#6663`, approved and merged by LiveKit's co-founder. On the
-inspect_evals pair the maintainer pushed commits before merging, so those merged diffs are not
-purely mine. One, `verifiers#2176`, was
-closed unmerged in a repository triage sweep that also closed several maintainers' own PRs;
-the issue it fixes is still open. The rest are open, and most are still unreviewed by a
-human.
+As of 2026-08-07, eight have been merged after human review. `inspect_evals#2036`, `#2042` and
+`#2097` at the UK AI Security Institute, `pipecat#5163` at Daily about four hours after it opened,
+`livekit/agents#6663` approved and merged by LiveKit's co-founder, `supervision#2468` at Roboflow,
+`haystack-core-integrations#3717` at deepset, and `genai-prices#520` at Pydantic. On the first two
+inspect_evals fixes the maintainer pushed commits before merging, so those merged diffs are not
+purely mine. Two were closed unmerged: `verifiers#2176` in a repository triage sweep that also
+closed several maintainers' own PRs, with the issue it fixes still open, and `respan#339` as
+superseded by another contributor who landed the same fix first. The rest are open, and many are
+still unreviewed by a human.
 
 If you maintain one of these and I've got something wrong, open an issue here or comment on
 the PR and I'll fix or withdraw it.
 
-**42 pull requests across 28 organisations. 7 merged upstream after human review.**
+**44 pull requests across 28 organisations. 8 merged upstream after human review.**
 
 | Status | Where | What was wrong | PR |
 |---|---|---|---|
-| open | `armature-tech/mcp-analytics-python` | stop the overflow warning reporting a count that is always 1 | [#3](https://github.com/armature-tech/mcp-analytics-python/pull/3) |
-| open | `crewAIInc/crewAI` | count Anthropic cached input tokens in the reported totals | [#6838](https://github.com/crewAIInc/crewAI/pull/6838) |
-| open | `voxel51/fiftyone` | compute per-sample Dice from the sample's own confusion matrix | [#8195](https://github.com/voxel51/fiftyone/pull/8195) |
+| **merged** | `UKGovernmentBEIS/inspect_evals` | stop scoring truncated reasoning as the model's answer | [#2097](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2097) |
+| **merged** | `pydantic/genai-prices` | Add AWS Bedrock prices for Writer Palmyra X4 and X5 | [#520](https://github.com/pydantic/genai-prices/pull/520) |
+| **merged** | `deepset-ai/haystack-core-integrations` | include cached tokens in the OpenAI-compatible prompt_tokens | [#3717](https://github.com/deepset-ai/haystack-core-integrations/pull/3717) |
 | **merged** | `roboflow/supervision` | track prediction-only classes in Recall | [#2468](https://github.com/roboflow/supervision/pull/2468) |
 | **merged** | `livekit/agents` | count cached tokens in Bedrock's prompt_tokens | [#6663](https://github.com/livekit/agents/pull/6663) |
 | **merged** | `UKGovernmentBEIS/inspect_evals` | stop penalising optional parameters at their schema default | [#2042](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2042) |
 | **merged** | `UKGovernmentBEIS/inspect_evals` | restore the denominator on confidence and apologize_rate | [#2036](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2036) |
 | **merged** | `pipecat-ai/pipecat` | count cached input tokens in total_tokens for Anthropic and Bedrock | [#5163](https://github.com/pipecat-ai/pipecat/pull/5163) |
+| open | `respanai/respan` | add control cases for the thinking-token fold | [#351](https://github.com/respanai/respan/pull/351) |
+| open | `voxel51/fiftyone` | compute per-sample Dice from the sample's own confusion matrix | [#8195](https://github.com/voxel51/fiftyone/pull/8195) |
+| closed | `crewAIInc/crewAI` | count cached input tokens in the reported totals | [#6838](https://github.com/crewAIInc/crewAI/pull/6838) |
+| open | `armature-tech/mcp-analytics-python` | stop the overflow warning reporting a count that is always 1 | [#3](https://github.com/armature-tech/mcp-analytics-python/pull/3) |
 | open | `roboflow/inference` | align weights proxy builder with wrap_url (#2662) | [#2748](https://github.com/roboflow/inference/pull/2748) |
 | open | `mcp-use/mcp-use` | count Anthropic cache tokens and stop message_delta erasing usage | [#2127](https://github.com/mcp-use/mcp-use/pull/2127) |
 | open | `roboflow/inference` | stop usage tracking failures from failing the inference call | [#2745](https://github.com/roboflow/inference/pull/2745) |
 | open | `braintrustdata/autoevals` | stop a skipped sub-score being averaged as a mismatch | [#210](https://github.com/braintrustdata/autoevals/pull/210) |
 | open | `UKGovernmentBEIS/inspect_evals` | score proof rearrangement against the ground truth length | [#2060](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2060) |
-| closed | `confident-ai/deepeval` | unbreak npm ci, closed as obsolete once upstream fixed the lockfile | [#2995](https://github.com/confident-ai/deepeval/pull/2995) |
-| closed | `run-llama/llama_index` | count Anthropic cached prompt tokens in TokenCountingHandler | [#22548](https://github.com/run-llama/llama_index/pull/22548) |
-| **merged** | `deepset-ai/haystack-core-integrations` | include cached tokens in the OpenAI-compatible prompt_tokens | [#3717](https://github.com/deepset-ai/haystack-core-integrations/pull/3717) |
 | open | `reef-technologies/django-business-metrics` | the documented collection timeout can never fire, and one failing metric blanks the whol | [#8](https://github.com/reef-technologies/django-business-metrics/pull/8) |
+| closed | `confident-ai/deepeval` | unbreak npm ci by aligning the ai devDependency with the mastra peer range | [#2995](https://github.com/confident-ai/deepeval/pull/2995) |
+| closed | `run-llama/llama_index` | count Anthropic cached prompt tokens in TokenCountingHandler | [#22548](https://github.com/run-llama/llama_index/pull/22548) |
 | open | `pipecat-ai/pipecat` | report accumulated TTS usage when a turn is interrupted | [#5188](https://github.com/pipecat-ai/pipecat/pull/5188) |
 | closed | `PrimeIntellect-ai/verifiers` | fall back to loopback TCP where zmq has no ipc transport | [#2176](https://github.com/PrimeIntellect-ai/verifiers/pull/2176) |
 | open | `pydantic/logfire` | price Bedrock calls under the aws provider | [#2162](https://github.com/pydantic/logfire/pull/2162) |
-| open | `respanai/respan` | fold Gemini thinking tokens into the output token count | [#339](https://github.com/respanai/respan/pull/339) |
-| **merged** | `pydantic/genai-prices` | Add AWS Bedrock prices for Writer Palmyra X4 and X5 | [#520](https://github.com/pydantic/genai-prices/pull/520) |
+| closed | `respanai/respan` | fold Gemini thinking tokens into the output token count | [#339](https://github.com/respanai/respan/pull/339) |
 | open | `JudgmentLabs/judgeval` | fix: don't adopt a foreign global OTel span as a Judgment parent | [#769](https://github.com/JudgmentLabs/judgeval/pull/769) |
-| open | `Arize-ai/phoenix` | carry LiteLLM above_NNNk tier rates into the manifest | [#14761](https://github.com/Arize-ai/phoenix/pull/14761) |
 | open | `okareo-ai/okareo-python-sdk` | keep temperature=0 when reading a driver from the API | [#260](https://github.com/okareo-ai/okareo-python-sdk/pull/260) |
 | open | `okareo-ai/okareo-python-sdk` | pass timeout through to the HTTP client | [#261](https://github.com/okareo-ai/okareo-python-sdk/pull/261) |
 | open | `confident-ai/deepeval` | normalize ConversationalGEval score against the rubric range | [#2965](https://github.com/confident-ai/deepeval/pull/2965) |
@@ -321,6 +323,7 @@ the PR and I'll fix or withdraw it.
 | open | `Helicone/helicone` | reach higher pricing tiers on non-tiered providers | [#5737](https://github.com/Helicone/helicone/pull/5737) |
 | open | `BerriAI/litellm` | emit streamed tool calls instead of raw JSON content | [#34769](https://github.com/BerriAI/litellm/pull/34769) |
 | open | `BerriAI/litellm` | start on consoles that cannot encode the startup banner | [#34770](https://github.com/BerriAI/litellm/pull/34770) |
+| closed | `Arize-ai/phoenix` | carry LiteLLM above_NNNk tier rates into the manifest | [#14761](https://github.com/Arize-ai/phoenix/pull/14761) |
 | open | `cohere-ai/cohere-python` | batched embed drops meta.tokens and image billed units | [#784](https://github.com/cohere-ai/cohere-python/pull/784) |
 | open | `cohere-ai/cohere-python` | save_csv writes a blank row between every record on Windows | [#785](https://github.com/cohere-ai/cohere-python/pull/785) |
 | open | `langfuse/langfuse-python` | stop dropping cost when usage is a dict or cost is an int | [#1781](https://github.com/langfuse/langfuse-python/pull/1781) |
@@ -329,7 +332,6 @@ the PR and I'll fix or withdraw it.
 | open | `pingcap/ossinsight` | Add whatbroke to AI Evaluation & Testing collection | [#3102](https://github.com/pingcap/ossinsight/pull/3102) |
 | open | `ollama/ollama` | Add whatbroke to community integrations | [#17344](https://github.com/ollama/ollama/pull/17344) |
 | closed | `apache/superset` | add column required validation for filter_select | [#33377](https://github.com/apache/superset/pull/33377) |
-
 Credit where it is not mine: the diagnosis behind `inspect_evals#2036` is
 [@dewstend's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/1979), and the defect
 and examples behind `inspect_evals#2042` are
