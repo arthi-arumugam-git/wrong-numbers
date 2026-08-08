@@ -1,6 +1,6 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
-**44 pull requests across 28 organisations. 8 merged upstream after human review.**
+**44 pull requests across 28 organisations. 9 merged upstream after human review.**
 Most are one defect: a number comes out wrong and nothing raises.
 
 Every finding links to a pull request, and every pull request ships a test that fails on
@@ -62,11 +62,11 @@ contract quietly disagreeing:
   idempotence guard, so an already-wrapped URL got proxied twice, and the gateway's base path
   was silently dropped, sending weights traffic somewhere the server traffic did not go.
 
-**Status is in the index below, per finding, generated from the API.** Of the eight merged,
+**Status is in the index below, per finding, generated from the API.** Of the nine merged,
 `inspect_evals#2036`, `#2042` and `#2097` went in at the UK AI Security Institute, `pipecat#5163`
 at Daily about four hours after it opened, `livekit/agents#6663` was approved and merged by
-LiveKit's co-founder, `supervision#2468` by a Roboflow maintainer whose review caught a real hole
-in my first attempt, `haystack-core-integrations#3717` at deepset after a round of requested
+LiveKit's co-founder, `supervision#2468` and `inference#2745` at Roboflow, the first after a review that caught a real
+hole in my first attempt and the second approved by two maintainers, `haystack-core-integrations#3717` at deepset after a round of requested
 changes, and `genai-prices#520` at Pydantic. Two, `verifiers#2176` and `respan#339`, were closed
 unmerged: the first in a triage sweep that also closed several maintainers' own pull requests, the
 second as superseded by another contributor who shipped the same fix first.
@@ -271,9 +271,10 @@ I use.
 
 ## The findings
 
-As of 2026-08-07, eight have been merged after human review. `inspect_evals#2036`, `#2042` and
+As of 2026-08-08, nine have been merged after human review. `inspect_evals#2036`, `#2042` and
 `#2097` at the UK AI Security Institute, `pipecat#5163` at Daily about four hours after it opened,
-`livekit/agents#6663` approved and merged by LiveKit's co-founder, `supervision#2468` at Roboflow,
+`livekit/agents#6663` approved and merged by LiveKit's co-founder, `supervision#2468` and
+`inference#2745` at Roboflow,
 `haystack-core-integrations#3717` at deepset, and `genai-prices#520` at Pydantic. On the first two
 inspect_evals fixes the maintainer pushed commits before merging, so those merged diffs are not
 purely mine. Two were closed unmerged: `verifiers#2176` in a repository triage sweep that also
@@ -284,11 +285,12 @@ still unreviewed by a human.
 If you maintain one of these and I've got something wrong, open an issue here or comment on
 the PR and I'll fix or withdraw it.
 
-**44 pull requests across 28 organisations. 8 merged upstream after human review.**
+**44 pull requests across 28 organisations. 9 merged upstream after human review.**
 
 | Status | Where | What was wrong | PR |
 |---|---|---|---|
 | **merged** | `UKGovernmentBEIS/inspect_evals` | stop scoring truncated reasoning as the model's answer | [#2097](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2097) |
+| **merged** | `roboflow/inference` | stop usage tracking failures from failing the inference call | [#2745](https://github.com/roboflow/inference/pull/2745) |
 | **merged** | `pydantic/genai-prices` | Add AWS Bedrock prices for Writer Palmyra X4 and X5 | [#520](https://github.com/pydantic/genai-prices/pull/520) |
 | **merged** | `deepset-ai/haystack-core-integrations` | include cached tokens in the OpenAI-compatible prompt_tokens | [#3717](https://github.com/deepset-ai/haystack-core-integrations/pull/3717) |
 | **merged** | `roboflow/supervision` | track prediction-only classes in Recall | [#2468](https://github.com/roboflow/supervision/pull/2468) |
@@ -300,9 +302,8 @@ the PR and I'll fix or withdraw it.
 | open | `voxel51/fiftyone` | compute per-sample Dice from the sample's own confusion matrix | [#8195](https://github.com/voxel51/fiftyone/pull/8195) |
 | closed | `crewAIInc/crewAI` | count cached input tokens in the reported totals | [#6838](https://github.com/crewAIInc/crewAI/pull/6838) |
 | open | `armature-tech/mcp-analytics-python` | stop the overflow warning reporting a count that is always 1 | [#3](https://github.com/armature-tech/mcp-analytics-python/pull/3) |
-| open | `roboflow/inference` | align weights proxy builder with wrap_url (#2662) | [#2748](https://github.com/roboflow/inference/pull/2748) |
 | open | `mcp-use/mcp-use` | count Anthropic cache tokens and stop message_delta erasing usage | [#2127](https://github.com/mcp-use/mcp-use/pull/2127) |
-| open | `roboflow/inference` | stop usage tracking failures from failing the inference call | [#2745](https://github.com/roboflow/inference/pull/2745) |
+| closed | `roboflow/inference` | align weights proxy builder with wrap_url (#2662) | [#2748](https://github.com/roboflow/inference/pull/2748) |
 | open | `braintrustdata/autoevals` | stop a skipped sub-score being averaged as a mismatch | [#210](https://github.com/braintrustdata/autoevals/pull/210) |
 | open | `UKGovernmentBEIS/inspect_evals` | score proof rearrangement against the ground truth length | [#2060](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2060) |
 | open | `reef-technologies/django-business-metrics` | the documented collection timeout can never fire, and one failing metric blanks the whol | [#8](https://github.com/reef-technologies/django-business-metrics/pull/8) |
