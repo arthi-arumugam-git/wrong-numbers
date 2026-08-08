@@ -1,6 +1,19 @@
 # Every LLM eval and cost library I checked reports at least one wrong number
 
 **44 pull requests across 28 organisations. 9 merged upstream after human review.**
+
+> ### The checker lives here now: [cachecheck](https://github.com/arthi-arumugam-git/cachecheck)
+>
+> `cachecheck.py` used to sit in this repo. It is its own package now, because a tool people
+> can run is worth more than a tool people can read about, and two copies of it would have
+> drifted apart, which is the exact defect this whole repo is about.
+>
+> ```bash
+> uvx cachecheck .
+> ```
+>
+> No dependencies, exit code 1 on a finding, and it ships as a GitHub Action. Every rule in it
+> is one of the findings written up below.
 Most are one defect: a number comes out wrong and nothing raises.
 
 Every finding links to a pull request, and every pull request ships a test that fails on
