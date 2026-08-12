@@ -1,160 +1,79 @@
-# The metrics are the least-tested code in the eval stack
+# I claimed eval metrics are untested. I measured it properly and I was wrong.
 
-> ## Correction in progress, 2026-08-12
->
-> **The headline claim on this page is not supported by the method used to produce it, and I am
-> in the middle of replacing it.** Stated plainly rather than quietly edited, because the
-> argument of this repository is that wrong numbers survive when nobody says anything.
->
-> The figures below measure **"no test anywhere refers to this metric by either of its
-> names."** I presented that as a proxy for "untested". It is not a good one. Re-running
-> `inspect_evals` under **coverage instrumentation**, which records what actually executes,
-> every metric in a sample of five evals I had not contributed to (`agentharm`, `xstest`,
-> `ifeval`, `worldsense`, `mask`, 18 definitions) **did execute under test**. They are reached
-> through end-to-end task tests without ever being named in a test file.
->
-> So the grep-based figure is measuring naming convention, not test coverage, and it
-> substantially overstates the problem. A full coverage-instrumented measurement is running and
-> this page will be rewritten around it.
->
-> Two things survive the correction, and they are the parts that mattered:
->
-> - **The taxonomy below**, which is derived from defects reproduced against installed
->   packages, not from this metric.
-> - **The finding that started it**: `stereotype_score` in `inspect_evals` had no test that
->   exercised it, a run where every answer failed to parse reported StereoSet's *ideal* score,
->   and [the fix](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123) ships a test
->   that fails on `main`. That is reproducible regardless of what the coverage rate turns out
->   to be.
->
-> Executed under test still is not the same as asserted on. The replacement measurement will
-> use mutation testing, which is the only method here that checks assertions rather than
-> execution.
+**Retracted:** "58% of metric definitions across five evaluation frameworks are never tested,"
+and its successor "32% in `inspect_evals`." Both came from grepping test files for a metric's
+name. That measures **naming convention**, not test coverage.
 
+**What coverage instrumentation actually shows** for `UKGovernmentBEIS/inspect_evals`, running
+the full suite (4,178 passed, 813 skipped, 10m46s) under `coverage.py` and asking which metric
+functions executed:
 
-Measured with each framework's **own** registration marker, so "this is a metric" is the
-framework's judgement and not mine. A metric counts as touched if **either** its function name
-**or** the name it is registered under appears anywhere in any test file.
+| Population (framework's own decorator) | Never executed | Rate |
+|---|---:|---:|
+| `@metric` | 3 of 135 | **2%** |
+| `@scorer` | 41 of 225 | 18% |
+| **Total** | **44 of 360** | **12%** |
 
-| Framework | Registered metrics | Never touched by any test | Rate |
-|---|---:|---:|---:|
-| [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) (EleutherAI) — `@register_metric` / `@register_aggregation` | 23 | 13 | **57%** |
-| [inspect_evals](https://github.com/UKGovernmentBEIS/inspect_evals) (UK AI Security Institute) — `@metric` | 136 | 44 | **32%** |
+And 40 of those 44 are `build_scorer` clones in `theagentcompany` task directories, one per
+task. The real figure for metric code proper is **2%**.
 
-`inspect_evals` counts definitions, of which there are 136 across 125 distinct function names; the 44 untested definitions span 42 distinct names.
+So the thesis this page was built on does not survive contact with a correct measurement.
+Metrics in `inspect_evals` are exercised. They are reached through end-to-end task tests
+without ever being named in a test file, which is precisely what the grep could not see.
 
-Untested in `lm-evaluation-harness`: `acc_all`, `acc_bytes`, `bits_per_byte`, `bypass`,
-`byte_perplexity`, `chrf`, `likelihood`, `matthews_corrcoef`, `mcc`, `nanmean`, `ter`,
-`weighted_perplexity`, `word_perplexity`.
+## Why the wrong method was wrong
 
-**57% is the conservative end of a range, and the honest figure is higher.** `brier_score` is
-excluded from the count above because it appears in `tests/testyamls/test-01.yaml`, even though
-nothing in `tests/` or `lm_eval` references that file, so it is an orphaned fixture. Including
-it would give 14 of 23, 61%.
+Reproduce either number with `research/audit_metric_coverage.py`. The grep mode is still in
+there, marked as the weaker method, because the ways it failed are worth keeping:
 
-The error runs much further the other way. Inspecting the ten metrics this method counts as
-covered:
+- **Metrics exercised anonymously inside end-to-end tests scored as untested.** This dominates
+  every other error and is why 32% became 12%.
+- Metrics registered under a name different from their function name scored as untested when
+  tests reached them through the registry. Fixing only this moved `lm-evaluation-harness` from
+  87% to 61%.
+- A metric whose only appearance in an entire test suite was inside a **code comment** scored
+  as covered. Others appeared only as config strings in YAML-parsing tests, or in mocks that
+  substituted a different aggregation.
+- Fixture files full of metric names turned out to be **orphaned**, referenced by nothing. In
+  `lm-evaluation-harness`, 340 `*-res.json` files under `tests/testdata/` contain metric names
+  and no test loads any of them.
+- A virtualenv inside one checkout put `site-packages` into the population.
+- The first subset I sampled under coverage was four evals I had **personally added tests to**,
+  which guaranteed a clean result. Choosing the sample is a research decision and I got it
+  wrong before I got it right.
 
-| Metric | Its entire presence in the test suite |
-|---|---|
-| `perplexity` | one occurrence, inside a **code comment** |
-| `median` | one occurrence, as the string `aggregation="median"` in a config |
-| `exact_match` | two occurrences, both `- metric: exact_match` in YAML parsing tests |
-| `bleu` | a mock task whose aggregation is `mean`, not `bleu` |
+Coverage is not the last word either. **Executed is not asserted on**: a metric can run inside
+a test that never checks its output. The only method that measures assertions is mutation
+testing, which is the obvious next step and which I have not run.
 
-None of those exercises the metric's arithmetic. Reclassifying them puts the figure near 17 of
-23. The table reports 57% because it is the number that requires no judgement at all.
+## What survives
 
-Reproduce:
-
-```bash
-python research/audit_metric_coverage.py path/to/repo
-```
-
-## Why this is the finding and the pull requests are the evidence
-
-The rest of this repository is a catalogue: defects in shipped libraries, each one a number
-that comes out wrong while nothing raises. Read as a catalogue it invites the obvious
-objection, that anyone who looks hard enough at any codebase will find something.
-
-This is the answer. The defects are not evenly distributed. They concentrate in metric
-functions, and metric functions are where the tests are not. That is a mechanism, and it
-predicts where the next one will be.
-
-## Why metrics specifically
-
-1. **A metric returns a float, so nothing type-checks it.** A parser that breaks returns the
-   wrong type and something downstream complains. A metric that breaks returns `0.15` where
-   the truth was `0.2727`, and `0.15` is a perfectly ordinary number.
-2. **Failure is indistinguishable from a result.** In
-   [`stereoset`](../findings/inspect-evals-2123-stereoset-unscorable.md) a run where every
-   answer failed to parse reported 50, which is that benchmark's *ideal* score. There is no
-   exception to catch, because nothing went wrong from the code's point of view.
-3. **The metric is written last and is the least interesting part.** The eval is the
-   contribution; the aggregation is plumbing at the end of the file.
-4. **Testing a metric means asserting on arithmetic, which feels redundant** right up until
-   the denominator is the wrong set.
-
-## The taxonomy
+The defects. Every one below was reproduced against an installed package, with a test that
+fails on `main`, and none of them depends on the coverage claim:
 
 | Shape | What goes wrong | Instances |
 |---|---|---|
 | **Wrong denominator** | The average divides by a different set than the one it summed | `inspect_evals#2036`, `vellum#3741`, `deepeval#2966` |
-| **Silent exclusion** | Failed samples are filtered out, shrinking the denominator without saying so | `inspect_evals#2123`, `autoevals#210` |
-| **Sentinel collapse** | An "unknown" value is coerced to a real one, usually `NaN` to `0` | `RE-Bench#43`, `inspect_evals#2123` |
-| **Truncated basis** | The score is computed against the model's own output rather than ground truth | `inspect_evals#2060`, `inspect_evals#2097` |
+| **Silent exclusion** | Failed samples filtered out, shrinking the denominator with nothing to say so | `inspect_evals#2123`, `autoevals#210` |
+| **Sentinel collapse** | An unknown coerced to a real value, usually `NaN` to `0` | `RE-Bench#43`, `inspect_evals#2123` |
+| **Truncated basis** | Scored against the model's own output rather than ground truth | `inspect_evals#2060`, `inspect_evals#2097` |
 | **Partial propagation** | A fix lands on some of a set of near-identical files and not the rest | `supervision#2468`, `roboflow/inference#2745` |
 
-The first three are the same failure underneath: **the code decides what to do with a sample
-it could not score, and it decides silently.**
+The first three reduce to one thing: **the code decides what to do with a sample it could not
+score, and it decides silently.**
 
-## Method, and what it does not show
+The clearest instance is [`inspect_evals#2123`](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123).
+`stereotype_score` dropped every zero before averaging, and four different outcomes produce a
+zero, only one of which is a model judgement. When nothing survived, the empty branch returned
+`0.0`, which the final expression turns into **50**: StereoSet's *ideal* score. A run where
+every answer failed to parse was indistinguishable from a perfectly unbiased model.
 
-Both figures use the framework's own decorator to identify a metric, and count a metric as
-touched if either its function name or its registered name appears anywhere in any test file.
+That one had no test exercising it. Which is how this whole line of enquiry started, and it
+remains true even though the population-level claim it inspired does not.
 
-**This is not a bound in one direction, and an earlier version of this page wrongly called it a
-lower bound.** The measure errs both ways. A metric named in a test but never asserted on is
-counted as touched, which *understates* the problem. A metric exercised anonymously inside an
-end-to-end run is counted as untouched, which *overstates* it. What the number measures
-precisely is: no test anywhere refers to this metric by either of its names.
+## Why this page still says all of that
 
-Two checks were run against the second failure mode. In `inspect_evals`, re-running against
-every test file in the repository rather than only `tests/`, including the per-eval suite under
-`src/inspect_evals/ipi_coding_agent/tests/` and the CI scripts under `.github/`, leaves the
-figure unchanged at 44 of 136. In `lm-evaluation-harness`, 340 `*-res.json` fixtures under
-`tests/testdata/` do contain metric names, but no test loads any of them: the only live reads
-from that directory are 27 `.txt` and `.pkl` files, in `test_evaluator.py` and
-`tests/models/test_gguf.py`. Had those fixtures been live, six of the fourteen would have been
-covered and the rate would be 35% rather than 61%.
-
-**Only two frameworks are reported, and that is deliberate.** An earlier draft of this page
-carried a five-framework table built on a path-and-name heuristic. It was wrong, in three
-separate ways, and the corrections are worth stating because this repository has no business
-publishing an unchecked number:
-
-- One repository was scanned with a virtualenv inside it, so `site-packages` was counted as
-  first-party code.
-- The "anything in a `metrics/` directory" rule swept in Pydantic models, prompt classes and
-  protocols. In `ragas`, roughly one flagged item in twelve was actually a metric.
-- Metrics registered under a name distinct from their function name were counted as untested
-  when a test exercised them through the registry. Correcting this alone moved
-  `lm-evaluation-harness` from 87% to 61%.
-
-`deepeval`, `ragas` and `autoevals` implement metrics as classes or through registries with no
-single marker comparable to the two above, so no honest cross-framework rate covers them.
-They are omitted rather than estimated.
-
-What this does not show: that any given eval number is wrong. It shows that the code producing
-them is unexercised, and that where anyone has looked, defects were there.
-
-## What follows from it
-
-1. **A metric with no test is an unverified claim.** These numbers appear in system cards,
-   safety reports and regulatory submissions.
-2. **Test the failure paths, not the happy path.** Every defect in this repository is correct
-   on well-formed input. The bugs live in what happens to the sample that did not parse.
-3. **Make "I could not score this" a value the metric has to handle.** Four of the five shapes
-   disappear if unscorable samples are a distinct state rather than a zero.
-4. **Never let an empty denominator return a number in the metric's own scale.** `0.0` became
-   50 in `stereoset`, and 50 was the best possible result.
+A repository arguing that wrong numbers survive because nothing raises has no business quietly
+deleting its own. The corrections are the argument, not an embarrassment to it. The number went
+89, 87, 61, 57, 32, 12 across five methods in one day, and every move came from someone asking
+whether the previous one was real.

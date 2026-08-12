@@ -1,57 +1,20 @@
-# The metrics are the least-tested code in the eval stack
+# I claimed eval metrics are untested. I measured it properly and I was wrong.
 
-> ## Correction in progress, 2026-08-12
->
-> **The headline claim on this page is not supported by the method used to produce it, and I am
-> in the middle of replacing it.** Stated plainly rather than quietly edited, because the
-> argument of this repository is that wrong numbers survive when nobody says anything.
->
-> The figures below measure **"no test anywhere refers to this metric by either of its
-> names."** I presented that as a proxy for "untested". It is not a good one. Re-running
-> `inspect_evals` under **coverage instrumentation**, which records what actually executes,
-> every metric in a sample of five evals I had not contributed to (`agentharm`, `xstest`,
-> `ifeval`, `worldsense`, `mask`, 18 definitions) **did execute under test**. They are reached
-> through end-to-end task tests without ever being named in a test file.
->
-> So the grep-based figure is measuring naming convention, not test coverage, and it
-> substantially overstates the problem. A full coverage-instrumented measurement is running and
-> this page will be rewritten around it.
->
-> Two things survive the correction, and they are the parts that mattered:
->
-> - **The taxonomy below**, which is derived from defects reproduced against installed
->   packages, not from this metric.
-> - **The finding that started it**: `stereotype_score` in `inspect_evals` had no test that
->   exercised it, a run where every answer failed to parse reported StereoSet's *ideal* score,
->   and [the fix](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123) ships a test
->   that fails on `main`. That is reproducible regardless of what the coverage rate turns out
->   to be.
->
-> Executed under test still is not the same as asserted on. The replacement measurement will
-> use mutation testing, which is the only method here that checks assertions rather than
-> execution.
+The headline of this repository used to be "58% of eval metrics are never tested." It was
+produced by grepping test files for each metric's name, which measures naming convention, not
+coverage. Running `inspect_evals`' full suite under `coverage.py` instead:
 
+| Population (framework's own decorator) | Never executed | Rate |
+|---|---:|---:|
+| `@metric` | 3 of 135 | **2%** |
+| `@scorer` | 41 of 225 | 18% |
+| **Total** | **44 of 360** | **12%** |
 
-Measured with each framework's own registration marker, counting a metric as touched if either
-its function name or its registered name appears anywhere in any test file:
+40 of those 44 are `build_scorer` clones in one benchmark's task directories. Metric code
+proper sits at **2%**. **[The full retraction, the five methods, and why each was
+wrong.](research/metric-test-coverage.md)**
 
-| Framework | Registered metrics | Never touched by any test | Rate |
-|---|---:|---:|---:|
-| lm-evaluation-harness (EleutherAI) | 23 | 13 | **57%** |
-| inspect_evals (UK AI Security Institute) | 136 | 44 | **32%** |
-
-The measure is precisely: no test anywhere refers to this metric by either of its names. Both
-figures are the conservative end. Four of the metrics counted as covered in
-`lm-evaluation-harness` appear only in a code comment, a config string, or a mock.
-
-```bash
-python research/audit_metric_coverage.py path/to/repo
-```
-
-**[Read the full result, the method, the three errors an earlier draft of it contained, and the
-taxonomy of the five defect shapes.](research/metric-test-coverage.md)**
-
-That is the argument. What follows is the evidence for it: **47 pull requests across 30
+What survives is the evidence: **47 pull requests across 30
 organisations, 9 merged upstream after human review**, almost all of them a number that comes
 out wrong while nothing raises. The defects are not evenly distributed through these
 codebases. They concentrate in metric functions, and metric functions are where the tests are
