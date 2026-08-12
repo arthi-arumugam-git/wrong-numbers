@@ -60,8 +60,21 @@ it could not score, and it decides silently.**
 
 Both figures use the framework's own decorator to identify a metric, and count a metric as
 touched if either its function name or its registered name appears anywhere in any test file.
-That is deliberately generous, so both figures are **lower bounds**: appearing in a test is not
-the same as being asserted on.
+
+**This is not a bound in one direction, and an earlier version of this page wrongly called it a
+lower bound.** The measure errs both ways. A metric named in a test but never asserted on is
+counted as touched, which *understates* the problem. A metric exercised anonymously inside an
+end-to-end run is counted as untouched, which *overstates* it. What the number measures
+precisely is: no test anywhere refers to this metric by either of its names.
+
+Two checks were run against the second failure mode. In `inspect_evals`, re-running against
+every test file in the repository rather than only `tests/`, including the per-eval suite under
+`src/inspect_evals/ipi_coding_agent/tests/` and the CI scripts under `.github/`, leaves the
+figure unchanged at 44 of 136. In `lm-evaluation-harness`, 340 `*-res.json` fixtures under
+`tests/testdata/` do contain metric names, but no test loads any of them: the only live reads
+from that directory are 27 `.txt` and `.pkl` files, in `test_evaluator.py` and
+`tests/models/test_gguf.py`. Had those fixtures been live, six of the fourteen would have been
+covered and the rate would be 35% rather than 61%.
 
 **Only two frameworks are reported, and that is deliberate.** An earlier draft of this page
 carried a five-framework table built on a path-and-name heuristic. It was wrong, in three

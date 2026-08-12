@@ -8,7 +8,7 @@ its function name or its registered name appears anywhere in any test file:
 | lm-evaluation-harness (EleutherAI) | 23 | 14 | **61%** |
 | inspect_evals (UK AI Security Institute) | 136 | 44 | **32%** |
 
-Both are lower bounds: appearing in a test is not the same as being asserted on.
+The measure is precisely: no test anywhere refers to this metric by either of its names.
 
 ```bash
 python research/audit_metric_coverage.py path/to/repo
