@@ -14,7 +14,7 @@ coverage. Running `inspect_evals`' full suite under `coverage.py` instead:
 proper sits at **2%**. **[The full retraction, the five methods, and why each was
 wrong.](research/metric-test-coverage.md)**
 
-What survives is the evidence: **47 pull requests across 30
+What survives is the evidence: **48 pull requests across 30
 organisations, 9 merged upstream after human review**, almost all of them a number that comes
 out wrong while nothing raises. The defects are not evenly distributed through these
 codebases. They concentrate in metric functions, and metric functions are where the tests are
