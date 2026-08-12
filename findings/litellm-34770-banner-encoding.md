@@ -26,7 +26,7 @@ as such.
 
 ```bash
 gh pr checkout 34770 --repo BerriAI/litellm
-git checkout origin/main -- litellm/proxy/common_utils/banner.py
+git checkout origin/litellm_internal_staging -- litellm/proxy/common_utils/banner.py
 python -m pytest tests/test_litellm/proxy/common_utils/test_banner.py -q
 ```
 

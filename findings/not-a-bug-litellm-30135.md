@@ -61,3 +61,28 @@ Verify before you assert, including against yourself.
 
 The reproduction figure above is my own run, not something a reader can verify from a public
 artifact. If that matters to you, ask and I'll post the script rather than restate the number.
+
+---
+
+## Caveat added 2026-08-12: this one needs re-running
+
+An independent re-audit raised a problem with the reproduction above that I have not resolved.
+
+The gate in the base code is literally `if usage.prompt_tokens > threshold:`. Cache-creation
+tokens only reach that comparison if the provider folds them into `prompt_tokens`. So any run
+producing the 7.3211525 figure must have had `prompt_tokens` above the 200k threshold, which is
+the condition the reporter says did not hold. Their observed 3.66036875 is what you get when
+the gate never fires.
+
+That means the run above may have exercised a different code path than the one reported, and
+the conclusion "the number was correct" may be answering a question the reporter was not
+asking. There is also a competing PR, #30207, which changes that same line to use
+`effective_prompt_tokens`, which suggests the behaviour is genuinely contested rather than
+settled.
+
+The reproduction figure is also underdetermined: 585,659 cache-creation tokens at 1.25e-5 gives
+7.3207375, leaving $0.000415 unexplained, and the ratio is 2.000113 rather than exactly 2.
+
+This is the finding whose whole purpose is to show the method catches its own errors, so it is
+the one that least deserves the benefit of the doubt. It stands as an open question rather than
+a result until I re-run it against a pinned revision with the token counts recorded.

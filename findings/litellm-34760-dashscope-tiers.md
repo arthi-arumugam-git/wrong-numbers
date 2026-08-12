@@ -32,7 +32,7 @@ disagreed with the pre-request estimate, and nothing in the system compared the 
 
 ```bash
 gh pr checkout 34760 --repo BerriAI/litellm
-git checkout origin/main -- litellm/llms/dashscope/cost_calculator.py
+git checkout origin/litellm_internal_staging -- litellm/llms/dashscope/cost_calculator.py
 python -m pytest tests/test_litellm/llms/dashscope/test_dashscope_cost_calculator.py -q
 ```
 

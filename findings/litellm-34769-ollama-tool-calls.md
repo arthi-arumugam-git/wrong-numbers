@@ -55,7 +55,7 @@ running it live, not by CI.
 
 ```bash
 gh pr checkout 34769 --repo BerriAI/litellm
-git checkout origin/main -- litellm/llms/ollama/completion/transformation.py litellm/utils.py
+git checkout origin/litellm_internal_staging -- litellm/llms/ollama/completion/transformation.py litellm/utils.py
 python -m pytest tests/test_litellm/llms/ollama/test_ollama_completion_transformation.py -q
 ```
 
