@@ -1,23 +1,21 @@
 # The metrics are the least-tested code in the eval stack
 
-**1,237 metric and scorer definitions across five evaluation frameworks. 716 of them, 58%,
-are never named in a single test file.**
+Measured with each framework's own registration marker, counting a metric as touched if either
+its function name or its registered name appears anywhere in any test file:
 
-| Framework | Metric/scorer defs | Never named in a test | Rate |
+| Framework | Registered metrics | Never touched by any test | Rate |
 |---|---:|---:|---:|
-| lm-evaluation-harness (EleutherAI) | 132 | 118 | **89%** |
-| ragas | 258 | 183 | 71% |
-| deepeval | 274 | 164 | 60% |
-| inspect_evals (UK AI Security Institute) | 566 | 248 | 44% |
-| autoevals (Braintrust) | 7 | 3 | 43% |
-| **Total** | **1,237** | **716** | **58%** |
+| lm-evaluation-harness (EleutherAI) | 23 | 14 | **61%** |
+| inspect_evals (UK AI Security Institute) | 136 | 44 | **32%** |
+
+Both are lower bounds: appearing in a test is not the same as being asserted on.
 
 ```bash
 python research/audit_metric_coverage.py path/to/repo
 ```
 
-**[Read the full result, the method and its limits, and the taxonomy of the five defect
-shapes.](research/metric-test-coverage.md)**
+**[Read the full result, the method, the three errors an earlier draft of it contained, and the
+taxonomy of the five defect shapes.](research/metric-test-coverage.md)**
 
 That is the argument. What follows is the evidence for it: **47 pull requests across 30
 organisations, 9 merged upstream after human review**, almost all of them a number that comes
