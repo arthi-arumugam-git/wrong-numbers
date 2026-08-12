@@ -316,7 +316,7 @@ still unreviewed by a human.
 If you maintain one of these and I've got something wrong, open an issue here or comment on
 the PR and I'll fix or withdraw it.
 
-**44 pull requests across 28 organisations. 9 merged upstream after human review.**
+**48 pull requests across 30 organisations. 9 merged upstream after human review.**
 
 | Status | Where | What was wrong | PR |
 |---|---|---|---|

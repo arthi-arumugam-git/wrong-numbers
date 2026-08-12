@@ -2,7 +2,7 @@
 
 **Library:** run-llama/llama_index ·
 **PR:** [#22548](https://github.com/run-llama/llama_index/pull/22548)
-· **Status:** open as of 2026-08-02
+· **Status:** closed unmerged
 
 The third framework to make this mistake. See `pipecat#5163` (merged) and
 `livekit/agents#6663` (merged) for the other two.
@@ -84,3 +84,34 @@ print(get_tokens_from_response(
 Seven tests in `llama-index-core/tests/callbacks/test_token_counter_cache_tokens.py`.
 Three fail on `main`. Four pass on both: the uncached case, null cache fields, and two
 boundary tests pinning OpenAI and Gemini as unchanged.
+
+## Correction, 2026-08-12: the diagnosis was right and the fix was wrong
+
+An adversarial re-audit found that **the patch proposed here would have double-counted, by
+exactly 2x**, on the path it was most likely to run on.
+
+The fix adds the cache counters unconditionally after selecting a prompt count, guarding on
+**key spelling** rather than on whether the count is net or gross:
+
+```python
+prompt_tokens += sum(usage.get(k) or 0
+    for k in ("cache_read_input_tokens", "cache_creation_input_tokens"))
+```
+
+LiteLLM's Anthropic path emits both shapes at once. `calculate_usage` adds the cache counters
+into `prompt_tokens`, making it **gross**, and then passes the raw Anthropic-spelled keys
+through as extra fields, which survive because `openai.types.CompletionUsage` is configured
+`extra='allow'`. So the loop picks the already-gross `prompt_tokens` and the patch adds the
+cached tokens a second time: 21,503 billed becomes 43,003 reported.
+
+The pull request argued the opposite, that the fix was "deliberately narrow", and shipped two
+boundary tests. Both test provider-native shapes. The one shape carrying a gross prompt count
+**and** Anthropic-spelled keys is the one shape it never tested.
+
+It was closed for an unrelated reason, so the bug never shipped. Nobody caught it, including
+me, until this audit. It is kept here because a repository about numbers that come out wrong
+while nothing raises has no business hiding one of its own.
+
+The underlying defect is still real: `input_tokens` alone drops every cached token. The correct
+fix normalises **before** summing, or sums only when no total is present, which is what
+[`mcp-use#2127`](mcp-use-2127-streamed-usage-erased.md) does.

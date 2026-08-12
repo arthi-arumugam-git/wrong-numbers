@@ -14,7 +14,9 @@ were not being counted. It changed `f1_score.py` and `precision.py`, added about
 of regression tests to each, updated the docstrings and wrote a changelog entry.
 
 `recall.py` sits beside them, implements the same shape of computation, and was not changed.
-The line #2331 replaced in `precision.py` is still at `recall.py:331`.
+The line #2331 replaced in `precision.py` is still at `recall.py:331`. #2331's own description
+says *"`Recall` is intentionally left unchanged"*, so this was a deliberate decision being
+revisited rather than drift, and the pull request should have said so.
 
 ## The number
 
@@ -54,10 +56,18 @@ Two things in the repository answered it, which is the point worth keeping:
   scikit-learn infers labels from the union of `y_true` and `y_pred`, gives a prediction-only
   label a recall of `0.0`, and includes it in the macro average. Checked by running it:
   macro recall `0.1667`, not `0.3333`.
-- `recall.py` had already received #2331's zero-support guard for `WEIGHTED`, whose comment
-  refers to *"only false-positive classes"*. **That state could not arise in `recall.py`**,
-  because its class list came from the ground truth alone. The guard was copied across. The
-  change that gave it meaning was not.
+- `recall.py` already carried a zero-support guard for `WEIGHTED`, whose comment refers to
+  *"only false-positive classes"*.
+
+  > **Correction, 2026-08-12.** This bullet originally attributed that guard to #2331 and
+  > claimed *"that state could not arise in `recall.py`"*. Both are wrong. #2331 never touched
+  > `recall.py` at all, changing only `f1_score.py` and `precision.py`; the guard came from
+  > [#2408](https://github.com/roboflow/supervision/pull/2408), commit `072f784`. And the state
+  > **is** reachable: via the size-bucket path, `_compute_recall_for_classes` is called with
+  > zero targets and one prediction, so `class_counts.sum() == 0` and without the guard
+  > `np.average` raises `ZeroDivisionError`. The guard is load-bearing and must not be removed.
+  > The guard's own comment names that case, and the original bullet quoted only the first half
+  > of it. Corrected on the pull request as well.
 
 So the intent to treat the three alike was already in the file. Only half of it had landed.
 
