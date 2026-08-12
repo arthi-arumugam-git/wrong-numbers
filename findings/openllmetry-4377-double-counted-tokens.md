@@ -1,7 +1,7 @@
 # Streamed output tokens double-counted
 
 **Library:** traceloop/openllmetry · **PR:** [#4377](https://github.com/traceloop/openllmetry/pull/4377)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
+· **Status:** open 
 
 ## What's wrong
 

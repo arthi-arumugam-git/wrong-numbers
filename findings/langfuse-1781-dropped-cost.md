@@ -1,7 +1,7 @@
 # Cost dropped when usage is a dict or cost is an int
 
 **Library:** langfuse/langfuse-python · **PR:** [#1781](https://github.com/langfuse/langfuse-python/pull/1781)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
+· **Status:** open 
 
 ## What's wrong
 

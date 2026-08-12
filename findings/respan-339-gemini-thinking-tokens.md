@@ -1,7 +1,7 @@
 # Gemini thinking tokens land on no attribute at all
 
 **Library:** respanai/respan · **PR:** [#339](https://github.com/respanai/respan/pull/339)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
+· **Status:** closed unmerged 
 
 ## What's wrong
 

@@ -1,7 +1,7 @@
 # `ollama/` drops every tool call when `stream=true`
 
 **Library:** BerriAI/litellm · **PR:** [#34769](https://github.com/BerriAI/litellm/pull/34769)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02 · Automated review: 5/5
+· **Status:** open · Automated review: 5/5
 · Fixes [#19742](https://github.com/BerriAI/litellm/issues/19742)
 
 Not a wrong number. The same silence, in control flow, and the most vivid case in the set.

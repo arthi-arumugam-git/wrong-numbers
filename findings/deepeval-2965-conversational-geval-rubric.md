@@ -1,7 +1,7 @@
 # ConversationalGEval ignores the rubric range
 
 **Library:** confident-ai/deepeval · **PR:** [#2965](https://github.com/confident-ai/deepeval/pull/2965)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
+· **Status:** open 
 
 ## What's wrong
 

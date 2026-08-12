@@ -1,25 +1,18 @@
-# I claimed eval metrics are untested. I measured it properly and I was wrong.
+# Wrong numbers
 
-The headline of this repository used to be "58% of eval metrics are never tested." It was
-produced by grepping test files for each metric's name, which measures naming convention, not
-coverage. Running `inspect_evals`' full suite under `coverage.py` instead:
+Every library below reports at least one number that comes out wrong while nothing raises.
+**44 pull requests across 28 organisations. 9 merged upstream after human review.**
 
-| Population (framework's own decorator) | Never executed | Rate |
-|---|---:|---:|
-| `@metric` | 3 of 135 | **2%** |
-| `@scorer` | 41 of 225 | 18% |
-| **Total** | **44 of 360** | **12%** |
+I also thought these defects cluster in metric code because metric code is untested. I tried to
+measure that twice. The first method grepped test files for each metric's name, which measures
+naming convention rather than coverage. The second was meant to fix it by running the suite
+under coverage, and produced a figure I could not reproduce afterwards and which appears to have
+been counting modules that failed to import. Both are withdrawn, and the page arguing them is
+deleted rather than patched.
 
-40 of those 44 are `build_scorer` clones in one benchmark's task directories. Metric code
-proper sits at **2%**. **[The full retraction, the five methods, and why each was
-wrong.](research/metric-test-coverage.md)**
-
-What survives is the evidence: **48 pull requests across 30 organisations, 9 merged upstream
-after human review**, almost all of them a number that comes out wrong while nothing raises.
-What did not survive is the explanation. I thought these defects clustered in metric code
-because metric code is untested. Measured properly, it is not. Why they cluster there is still
-an open question, and I would rather leave it open than answer it with the wrong number
-twice.
+So I no longer claim to know why these defects cluster where they do. What is below is the
+defects themselves, each one reproduced against an installed package, and most of them shipping
+a test that fails on `main`.
 
 > ### The checker lives here now: [cachecheck](https://github.com/arthi-arumugam-git/cachecheck)
 >
@@ -43,33 +36,6 @@ that stale numbers go unnoticed has no business carrying one. See
 
 **[Jump to the full index of every finding and its status.](#the-findings)**
 
-## Run it against your own repository
-
-The defect below was found by hand five times. `cachecheck.py` is the check that would have
-found each of them in a second. No dependencies, exits 1 on a finding so it works as a CI
-gate:
-
-```bash
-curl -O https://raw.githubusercontent.com/arthi-arumugam-git/wrong-numbers/main/cachecheck.py
-python cachecheck.py path/to/your/repo
-```
-
-It looks for three things, each taken from a defect in a shipped library:
-
-| Rule | What it means |
-|---|---|
-| `cache-blind-total` | a total computed as input plus output, in a file that never reads `cache_read_input_tokens` |
-| `cache-read-never-read` | arithmetic on `input_tokens` with the cache counter read nowhere |
-| `cache-creation-ignored` | cache reads handled, cache **writes** not, and Anthropic bills writes above base rate |
-
-It deliberately stays quiet on OpenAI-shaped usage, where `cached_tokens` already sits inside
-`prompt_tokens` and adding it would double count. That distinction is the whole reason the
-obvious fix to this bug is wrong.
-
-Validated against `mcp-use` at the commit before the fix (2 findings, both real), the same
-tree after it (silent), and 280 unrelated files (silent).
-
----
 
 **The fifth framework, and the worst variant of the five.**
 [`mcp-use#2127`](findings/mcp-use-2127-streamed-usage-erased.md). Anthropic's streaming
@@ -99,11 +65,15 @@ contract quietly disagreeing:
 at Daily about four hours after it opened, `livekit/agents#6663` was approved and merged by
 LiveKit's co-founder, `supervision#2468` and `inference#2745` at Roboflow, the first after a review that caught a real
 hole in my first attempt and the second approved by two maintainers, `haystack-core-integrations#3717` at deepset after a round of requested
-changes, and `genai-prices#520` at Pydantic. Two, `verifiers#2176` and `respan#339`, were closed
-unmerged: the first in a triage sweep that also closed several maintainers' own pull requests, the
-second as superseded by another contributor who shipped the same fix first.
+changes, and `genai-prices#520` at Pydantic. Nine were closed unmerged, and four of those were closed as
+duplicates of a fix that landed instead: `phoenix#14761` (superseded by @Anuj7411's own PR, which
+also closed the issue mine claimed to close), `inference#2748` (by #2747, opened hours earlier),
+`crewAI#6838` (by a maintainer's own #6844) and `respan#339` (by #344). The rest:
+`verifiers#2176` closed in a triage sweep, `llama_index#22548` where the callback system is
+deprecated, `deepeval#2995` self-closed as obsolete, `superset#33377` on a botched rebase, and
+`inspect_scout#9` which I closed myself once I found upstream had shipped the fix in June.
 
-Current state for all of them, without my summarising it:
+Current state for all of them, unfiltered:
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
 
 ---
@@ -126,10 +96,11 @@ At the default `n=200, k=1`, a task where 1 of 200 samples passes has a true pas
 and is reported as `1.0`. A model that stumbles onto each solution once in two hundred attempts
 scores 100% on HumanEval. That's the benchmark people put in papers.
 
-I spent a week reading the numeric paths of LLM eval, tracing and cost-tracking libraries.
-Twenty-five pull requests came out of it: deepeval, Phoenix, LiteLLM, Helicone, Langfuse,
+I spent a month reading the numeric paths of LLM eval, tracing and cost-tracking libraries.
+44 pull requests came out of it, across deepeval, Phoenix, LiteLLM, Helicone, Langfuse,
 OpenLLMetry, Judgeval, Vellum, Okareo, the Cohere SDK, Pydantic's Logfire and genai-prices,
-respan, UK AISI's inspect_evals, Pipecat, and Prime Intellect's verifiers.
+respan, UK AISI's inspect_evals, Pipecat, Prime Intellect's verifiers, mcp-use, crewAI,
+Roboflow's supervision and inference, FiftyOne, LlamaIndex, autoevals, Haystack and others.
 
 What I want to write about isn't the individual bugs. It's that they're all the same shape.
 
@@ -277,8 +248,9 @@ Nobody downstream is in a position to find out, because the only signal they get
 looks like a float.
 
 And this tooling is young. Most of it is under three years old, moving fast, with real test
-suites, but the numeric paths are the thinnest-covered part of all of them, and I think that's
-structural rather than careless. You write a test that asserts a call doesn't blow up. You write
+suites. I do not have a measurement of how well the numeric paths specifically are covered; I
+tried twice and withdrew both attempts. What I can say is why the test that would catch these
+is the one that tends not to get written. You write a test that asserts a call doesn't blow up. You write
 a test that asserts the response shape. Asserting the *value* requires you to independently
 derive what the value should be, from a provider's pricing page or a benchmark's definition, and
 that's slow, so it's the test that doesn't get written. OpenLLMetry's streaming test already
@@ -293,9 +265,8 @@ happens if it's hit and whether anyone will ever know. In every case above, the 
 
 ## On the size of the claim
 
-Thirty-odd wrong numbers across twenty-five organisations in a month is less impressive than
-it sounds, and it's worth saying so plainly. They are one bug pattern found repeatedly, not
-thirty independent investigations. Once you know the shape (a `default`, a truthiness check, a denominator that
+44 pull requests across 28 organisations is less impressive than it sounds. They are one bug
+pattern found repeatedly, not 44 independent investigations. Once you know the shape (a `default`, a truthiness check, a denominator that
 isn't the thing you counted) finding the next one is grep and forty minutes.
 
 The sample is also small and it is not random. I picked these libraries because they're the ones
@@ -309,15 +280,13 @@ As of 2026-08-08, nine have been merged after human review. `inspect_evals#2036`
 `inference#2745` at Roboflow,
 `haystack-core-integrations#3717` at deepset, and `genai-prices#520` at Pydantic. On the first two
 inspect_evals fixes the maintainer pushed commits before merging, so those merged diffs are not
-purely mine. Two were closed unmerged: `verifiers#2176` in a repository triage sweep that also
-closed several maintainers' own PRs, with the issue it fixes still open, and `respan#339` as
-superseded by another contributor who landed the same fix first. The rest are open, and many are
+purely mine. Nine were closed unmerged, listed above. The rest are open, and many are
 still unreviewed by a human.
 
 If you maintain one of these and I've got something wrong, open an issue here or comment on
 the PR and I'll fix or withdraw it.
 
-**48 pull requests across 30 organisations. 9 merged upstream after human review.**
+**44 pull requests across 28 organisations. 9 merged upstream after human review.**
 
 | Status | Where | What was wrong | PR |
 |---|---|---|---|
@@ -338,7 +307,7 @@ the PR and I'll fix or withdraw it.
 | closed | `roboflow/inference` | align weights proxy builder with wrap_url (#2662) | [#2748](https://github.com/roboflow/inference/pull/2748) |
 | open | `braintrustdata/autoevals` | stop a skipped sub-score being averaged as a mismatch | [#210](https://github.com/braintrustdata/autoevals/pull/210) |
 | open | `UKGovernmentBEIS/inspect_evals` | score proof rearrangement against the ground truth length | [#2060](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2060) |
-| open | `reef-technologies/django-business-metrics` | the documented collection timeout can never fire, and one failing metric blanks the whol | [#8](https://github.com/reef-technologies/django-business-metrics/pull/8) |
+| open | `reef-technologies/django-business-metrics` | the documented collection timeout can never fire, and one failing metric blanks the whole pagee page | [#8](https://github.com/reef-technologies/django-business-metrics/pull/8) |
 | closed | `confident-ai/deepeval` | unbreak npm ci by aligning the ai devDependency with the mastra peer range | [#2995](https://github.com/confident-ai/deepeval/pull/2995) |
 | closed | `run-llama/llama_index` | count Anthropic cached prompt tokens in TokenCountingHandler | [#22548](https://github.com/run-llama/llama_index/pull/22548) |
 | open | `pipecat-ai/pipecat` | report accumulated TTS usage when a turn is interrupted | [#5188](https://github.com/pipecat-ai/pipecat/pull/5188) |
@@ -371,7 +340,10 @@ and examples behind `inspect_evals#2042` are
 [@wise-east's](https://github.com/UKGovernmentBEIS/inspect_evals/issues/2004). What is mine on
 both is the fix, the sweep that measured how far it reaches, and the tests; on #2036 also the
 demonstration that the fix the issue proposes reports a *different* wrong number, 0.15 against
-a correct 0.2727. Every other finding on this page is my own.
+a correct 0.2727. Five more began as someone else's bug report and are credited in their own files:
+`Helicone#5737` and `Phoenix#14761` from issues filed by @Anuj7411, `litellm#34769` from
+@rcmurphy, `inference#2748` from @alexnorell, and `logfire#2162` from @ldbolanos. On each of
+those I wrote the fix, not the report.
 
 One is written up as a **negative result**:
 [LiteLLM #30135](findings/not-a-bug-litellm-30135.md), a reported bug chased, reproduced, and

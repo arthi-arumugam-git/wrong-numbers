@@ -1,7 +1,7 @@
 # DashScope tiers each token category independently
 
 **Library:** BerriAI/litellm · **PR:** [#34760](https://github.com/BerriAI/litellm/pull/34760)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02 · Automated review: 5/5
+· **Status:** open · Automated review: 5/5
 
 ## What's wrong
 

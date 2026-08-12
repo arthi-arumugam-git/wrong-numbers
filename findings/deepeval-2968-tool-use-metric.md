@@ -1,7 +1,7 @@
 # ToolUseMetric scores 0 when no tool was needed
 
 **Library:** confident-ai/deepeval · **PR:** [#2968](https://github.com/confident-ai/deepeval/pull/2968)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
+· **Status:** open 
 
 ## What's wrong
 

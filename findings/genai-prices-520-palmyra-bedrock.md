@@ -1,7 +1,7 @@
 # Writer Palmyra X4 and X5 on Bedrock resolve no price at all
 
 **Library:** pydantic/genai-prices · **PR:** [#520](https://github.com/pydantic/genai-prices/pull/520)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
+· **Status:** merged 
 
 ## What's wrong
 

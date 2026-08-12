@@ -1,7 +1,7 @@
 # `Recall` tracks a different set of classes than `Precision` and `F1Score`
 
 **Library:** roboflow/supervision · **Issue:** [#2467](https://github.com/roboflow/supervision/issues/2467)
-· **PR:** [#2468](https://github.com/roboflow/supervision/pull/2468) · **Status:** open
+· **PR:** [#2468](https://github.com/roboflow/supervision/pull/2468) · **Status:** merged 
 
 ## What's wrong
 

@@ -2,7 +2,7 @@
 
 **Library:** run-llama/llama_index ·
 **PR:** [#22548](https://github.com/run-llama/llama_index/pull/22548)
-· **Status:** closed unmerged
+· **Status:** closed unmerged 
 
 The third framework to make this mistake. See `pipecat#5163` (merged) and
 `livekit/agents#6663` (merged) for the other two.

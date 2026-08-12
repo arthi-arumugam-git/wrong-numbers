@@ -74,8 +74,7 @@ matches the paper. Only the failure paths changed meaning.
 ## Why it survived
 
 `stereotype_score()` had no test coverage at all. Not a weak test, none: the identifier
-appeared nowhere in `tests/stereoset/`. This is the finding that prompted
-[the coverage audit](../research/metric-test-coverage.md), which found the same pattern across
-five frameworks.
+appeared nowhere in `tests/stereoset/`. This is the finding that prompted an attempt to measure how much metric
+code is exercised by tests at all. That measurement was withdrawn; this defect is not.
 
 `tests/stereoset` goes from 15 passed to 22 passed, with no existing test modified.

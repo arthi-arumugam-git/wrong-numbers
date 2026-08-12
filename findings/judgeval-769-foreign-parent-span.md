@@ -1,7 +1,7 @@
 # A foreign global OTel span is adopted as parent
 
 **Library:** JudgmentLabs/judgeval · **PR:** [#769](https://github.com/JudgmentLabs/judgeval/pull/769)
-· **Status:** open, unreviewed by a human maintainer as of 2026-08-02
+· **Status:** open 
 
 ## What's wrong
 

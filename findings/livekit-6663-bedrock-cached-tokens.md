@@ -1,7 +1,7 @@
 # `CompletionUsage` contradicted its own documented contract on Bedrock
 
 **Library:** livekit/agents · **PR:** [#6663](https://github.com/livekit/agents/pull/6663)
-· **Status:** **merged 2026-08-02**, approved and merged by LiveKit's co-founder
+· **Status:** merged 
 
 ## What's wrong
 

@@ -2,7 +2,7 @@
 
 **Library:** roboflow/inference · **Issue:** [#2662](https://github.com/roboflow/inference/issues/2662)
 (filed by Roboflow) · **PR:** [#2748](https://github.com/roboflow/inference/pull/2748)
-· **Status:** open
+· **Status:** closed unmerged 
 
 ## What's wrong
 

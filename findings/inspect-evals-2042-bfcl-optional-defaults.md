@@ -1,7 +1,7 @@
 # BFCL scores an optional parameter at its own default as a disagreement
 
 **Library:** UKGovernmentBEIS/inspect_evals · **PR:** [#2042](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2042)
-· **Status:** merged 2026-07-31 · Fixes [#2004](https://github.com/UKGovernmentBEIS/inspect_evals/issues/2004)
+· **Status:** merged · Fixes [#2004](https://github.com/UKGovernmentBEIS/inspect_evals/issues/2004)
 
 **Credit:** the defect and the three `exec_simple` examples are
 [@wise-east's, in issue #2004](https://github.com/UKGovernmentBEIS/inspect_evals/issues/2004).
