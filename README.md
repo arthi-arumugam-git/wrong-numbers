@@ -1,6 +1,29 @@
-# Every LLM eval and cost library I checked reports at least one wrong number
+# The metrics are the least-tested code in the eval stack
 
-**44 pull requests across 28 organisations. 9 merged upstream after human review.**
+**1,237 metric and scorer definitions across five evaluation frameworks. 716 of them, 58%,
+are never named in a single test file.**
+
+| Framework | Metric/scorer defs | Never named in a test | Rate |
+|---|---:|---:|---:|
+| lm-evaluation-harness (EleutherAI) | 132 | 118 | **89%** |
+| ragas | 258 | 183 | 71% |
+| deepeval | 274 | 164 | 60% |
+| inspect_evals (UK AI Security Institute) | 566 | 248 | 44% |
+| autoevals (Braintrust) | 7 | 3 | 43% |
+| **Total** | **1,237** | **716** | **58%** |
+
+```bash
+python research/audit_metric_coverage.py path/to/repo
+```
+
+**[Read the full result, the method and its limits, and the taxonomy of the five defect
+shapes.](research/metric-test-coverage.md)**
+
+That is the argument. What follows is the evidence for it: **47 pull requests across 30
+organisations, 9 merged upstream after human review**, almost all of them a number that comes
+out wrong while nothing raises. The defects are not evenly distributed through these
+codebases. They concentrate in metric functions, and metric functions are where the tests are
+not.
 
 > ### The checker lives here now: [cachecheck](https://github.com/arthi-arumugam-git/cachecheck)
 >
