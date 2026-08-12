@@ -6,12 +6,32 @@ framework's judgement and not mine. A metric counts as touched if **either** its
 
 | Framework | Registered metrics | Never touched by any test | Rate |
 |---|---:|---:|---:|
-| [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) (EleutherAI) — `@register_metric` / `@register_aggregation` | 23 | 14 | **61%** |
+| [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) (EleutherAI) — `@register_metric` / `@register_aggregation` | 23 | 13 | **57%** |
 | [inspect_evals](https://github.com/UKGovernmentBEIS/inspect_evals) (UK AI Security Institute) — `@metric` | 136 | 44 | **32%** |
 
-Untested in `lm-evaluation-harness`: `acc_all`, `acc_bytes`, `bits_per_byte`, `brier_score`,
-`bypass`, `byte_perplexity`, `chrf`, `likelihood`, `matthews_corrcoef`, `mcc`, `nanmean`,
-`ter`, `weighted_perplexity`, `word_perplexity`.
+`inspect_evals` counts definitions, of which there are 136 across 125 distinct function names; the 44 untested definitions span 42 distinct names.
+
+Untested in `lm-evaluation-harness`: `acc_all`, `acc_bytes`, `bits_per_byte`, `bypass`,
+`byte_perplexity`, `chrf`, `likelihood`, `matthews_corrcoef`, `mcc`, `nanmean`, `ter`,
+`weighted_perplexity`, `word_perplexity`.
+
+**57% is the conservative end of a range, and the honest figure is higher.** `brier_score` is
+excluded from the count above because it appears in `tests/testyamls/test-01.yaml`, even though
+nothing in `tests/` or `lm_eval` references that file, so it is an orphaned fixture. Including
+it would give 14 of 23, 61%.
+
+The error runs much further the other way. Inspecting the ten metrics this method counts as
+covered:
+
+| Metric | Its entire presence in the test suite |
+|---|---|
+| `perplexity` | one occurrence, inside a **code comment** |
+| `median` | one occurrence, as the string `aggregation="median"` in a config |
+| `exact_match` | two occurrences, both `- metric: exact_match` in YAML parsing tests |
+| `bleu` | a mock task whose aggregation is `mean`, not `bleu` |
+
+None of those exercises the metric's arithmetic. Reclassifying them puts the figure near 17 of
+23. The table reports 57% because it is the number that requires no judgement at all.
 
 Reproduce:
 
