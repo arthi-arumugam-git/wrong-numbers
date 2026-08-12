@@ -1,5 +1,37 @@
 # The metrics are the least-tested code in the eval stack
 
+> ## Correction in progress, 2026-08-12
+>
+> **The headline claim on this page is not supported by the method used to produce it, and I am
+> in the middle of replacing it.** Stated plainly rather than quietly edited, because the
+> argument of this repository is that wrong numbers survive when nobody says anything.
+>
+> The figures below measure **"no test anywhere refers to this metric by either of its
+> names."** I presented that as a proxy for "untested". It is not a good one. Re-running
+> `inspect_evals` under **coverage instrumentation**, which records what actually executes,
+> every metric in a sample of five evals I had not contributed to (`agentharm`, `xstest`,
+> `ifeval`, `worldsense`, `mask`, 18 definitions) **did execute under test**. They are reached
+> through end-to-end task tests without ever being named in a test file.
+>
+> So the grep-based figure is measuring naming convention, not test coverage, and it
+> substantially overstates the problem. A full coverage-instrumented measurement is running and
+> this page will be rewritten around it.
+>
+> Two things survive the correction, and they are the parts that mattered:
+>
+> - **The taxonomy below**, which is derived from defects reproduced against installed
+>   packages, not from this metric.
+> - **The finding that started it**: `stereotype_score` in `inspect_evals` had no test that
+>   exercised it, a run where every answer failed to parse reported StereoSet's *ideal* score,
+>   and [the fix](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123) ships a test
+>   that fails on `main`. That is reproducible regardless of what the coverage rate turns out
+>   to be.
+>
+> Executed under test still is not the same as asserted on. The replacement measurement will
+> use mutation testing, which is the only method here that checks assertions rather than
+> execution.
+
+
 Measured with each framework's own registration marker, counting a metric as touched if either
 its function name or its registered name appears anywhere in any test file:
 
