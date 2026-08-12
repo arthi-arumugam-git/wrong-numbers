@@ -14,11 +14,12 @@ coverage. Running `inspect_evals`' full suite under `coverage.py` instead:
 proper sits at **2%**. **[The full retraction, the five methods, and why each was
 wrong.](research/metric-test-coverage.md)**
 
-What survives is the evidence: **48 pull requests across 30
-organisations, 9 merged upstream after human review**, almost all of them a number that comes
-out wrong while nothing raises. The defects are not evenly distributed through these
-codebases. They concentrate in metric functions, and metric functions are where the tests are
-not.
+What survives is the evidence: **48 pull requests across 30 organisations, 9 merged upstream
+after human review**, almost all of them a number that comes out wrong while nothing raises.
+What did not survive is the explanation. I thought these defects clustered in metric code
+because metric code is untested. Measured properly, it is not. Why they cluster there is still
+an open question, and I would rather leave it open than answer it with the wrong number
+twice.
 
 > ### The checker lives here now: [cachecheck](https://github.com/arthi-arumugam-git/cachecheck)
 >
@@ -32,12 +33,12 @@ not.
 >
 > No dependencies, exit code 1 on a finding, and it ships as a GitHub Action. Every rule in it
 > is one of the findings written up below.
-Most are one defect: a number comes out wrong and nothing raises.
 
-Every finding links to a pull request, and every pull request ships a test that fails on
-`main`. You do not have to take my word for any of it, and the index below is generated from
-the GitHub API rather than maintained by hand, because a page arguing that stale numbers go
-unnoticed has no business carrying one. See
+Every finding links to a pull request, and nearly all of them ship a test that fails on
+`main`. The exceptions are the one-line changes and the price-data updates, where there is
+nothing meaningful to assert. You do not have to take my word for any of it, and the index
+below is generated from the GitHub API rather than maintained by hand, because a page arguing
+that stale numbers go unnoticed has no business carrying one. See
 [How to check this yourself](#how-to-check-this-yourself).
 
 **[Jump to the full index of every finding and its status.](#the-findings)**

@@ -1,4 +1,4 @@
-# inspect_evals #2123 — a run where nothing parsed reports StereoSet's ideal score
+# inspect_evals #2123: a run where nothing parsed reports StereoSet's ideal score
 
 **Repository:** `UKGovernmentBEIS/inspect_evals` (UK AI Security Institute)
 **Pull request:** https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123
