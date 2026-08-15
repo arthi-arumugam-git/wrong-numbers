@@ -1,0 +1,207 @@
+{
+  "generated": "2026-08-15",
+  "sources": {
+    "counts": "python pr-counts.py (the only source for corpus totals)",
+    "pr_states": "GitHub API, checked 2026-08-15",
+    "classification": "the 31 files in findings/, read in full"
+  },
+  "corpus": {
+    "substantive_prs": 52,
+    "organisations": 34,
+    "merged": 9,
+    "open": 34,
+    "closed_unmerged": 9,
+    "shipped_in_releases": [
+      {
+        "release": "UKGovernmentBEIS/inspect_evals v0.17.0",
+        "published": "2026-08-14",
+        "prs": ["UKGovernmentBEIS/inspect_evals#2036", "UKGovernmentBEIS/inspect_evals#2042", "UKGovernmentBEIS/inspect_evals#2097"]
+      }
+    ]
+  },
+  "counting_rule": "each finding file is counted once, in its primary class; cross_listed entries are informational and never counted",
+  "classes": [
+    {
+      "id": 1,
+      "slug": "cache-token-exclusion",
+      "name": "Cache-token exclusion",
+      "definition": "A provider reports input tokens net of the prompt cache and bills the cache counters separately; the library maps the net count onto prompt_tokens and builds totals from it, so cached tokens disappear from the accounting.",
+      "findings": [
+        {"file": "findings/livekit-6663-bedrock-cached-tokens.md", "pr": "livekit/agents#6663", "status": "merged"},
+        {"file": "findings/crewai-6838-anthropic-cached-tokens.md", "pr": "crewAIInc/crewAI#6838", "status": "closed-unmerged", "superseded_by": "crewAIInc/crewAI#6844"},
+        {"file": "findings/llamaindex-22548-anthropic-cache-tokens.md", "pr": "run-llama/llama_index#22548", "status": "closed-unmerged", "note": "finding carries a 2026-08-12 correction: the diagnosis stands, the proposed fix would have double-counted"},
+        {"file": "findings/mcp-use-2127-streamed-usage-erased.md", "pr": "mcp-use/mcp-use#2127", "status": "open", "also_carries_class": 12}
+      ],
+      "family_members_without_writeups": [
+        {"pr": "pipecat-ai/pipecat#5163", "status": "merged"},
+        {"pr": "deepset-ai/haystack-core-integrations#3717", "status": "merged"}
+      ],
+      "libraries_affected": 6,
+      "libraries": ["pipecat", "livekit/agents", "llama_index", "haystack-core-integrations", "mcp-use", "crewAI"]
+    },
+    {
+      "id": 2,
+      "slug": "guard-filters-legal-value",
+      "name": "A guard that filters a legal value",
+      "definition": "A truthiness or type check meant to skip missing data instead filters a legal value (0, an int cost, a dict), and a default or nothing takes its place.",
+      "findings": [
+        {"file": "findings/deepeval-2967-humaneval-pass-at-k.md", "pr": "confident-ai/deepeval#2967", "status": "open"},
+        {"file": "findings/okareo-260-temperature-zero.md", "pr": "okareo-ai/okareo-python-sdk#260", "status": "open"},
+        {"file": "findings/langfuse-1781-dropped-cost.md", "pr": "langfuse/langfuse-python#1781", "status": "open", "effect_overlap_with_class": 10}
+      ],
+      "libraries_affected": 3,
+      "libraries": ["deepeval", "okareo-python-sdk", "langfuse-python"]
+    },
+    {
+      "id": 3,
+      "slug": "silent-zero-metrics",
+      "name": "Silent-zero metrics",
+      "definition": "A metric path that failed, or had nothing to score, emits a number on the metric's own scale instead of failing, indistinguishable from a real judgement.",
+      "findings": [
+        {"file": "findings/inspect-evals-2036-sycophancy-metrics.md", "pr": "UKGovernmentBEIS/inspect_evals#2036", "status": "merged"},
+        {"file": "findings/inspect-evals-2123-stereoset-unscorable.md", "pr": "UKGovernmentBEIS/inspect_evals#2123", "status": "open"},
+        {"file": "findings/deepeval-2968-tool-use-metric.md", "pr": "confident-ai/deepeval#2968", "status": "open"}
+      ],
+      "libraries_affected": 2,
+      "libraries": ["inspect_evals", "deepeval"]
+    },
+    {
+      "id": 4,
+      "slug": "denominator-mismatch",
+      "name": "A denominator that does not match what was counted",
+      "definition": "The numerator is computed over a filtered or truncated set and the denominator over the original one, scaling the reported mean by a ratio nobody chose.",
+      "findings": [
+        {"file": "findings/vellum-3741-mean-denominator.md", "pr": "vellum-ai/vellum-python-sdks#3741", "status": "open"},
+        {"file": "findings/deepeval-2966-benchmark-denominators.md", "pr": "confident-ai/deepeval#2966", "status": "open"}
+      ],
+      "libraries_affected": 2,
+      "libraries": ["vellum-python-sdks", "deepeval"]
+    },
+    {
+      "id": 5,
+      "slug": "fix-lands-on-some-twins-not-others",
+      "name": "The fix lands on some twins and not others",
+      "definition": "Near-identical sibling implementations of one contract exist; a fix or feature lands on some and not the rest, and the siblings quietly disagree from then on.",
+      "findings": [
+        {"file": "findings/supervision-2468-recall-prediction-only-classes.md", "pr": "roboflow/supervision#2468", "status": "merged"},
+        {"file": "findings/deepeval-2965-conversational-geval-rubric.md", "pr": "confident-ai/deepeval#2965", "status": "open"},
+        {"file": "findings/inference-2748-gateway-proxy-parity.md", "pr": "roboflow/inference#2748", "status": "closed-unmerged", "superseded_by": "roboflow/inference#2747"},
+        {"file": "findings/respan-339-gemini-thinking-tokens.md", "pr": "respanai/respan#339", "status": "closed-unmerged", "superseded_by": "respanai/respan#344"}
+      ],
+      "libraries_affected": 4,
+      "libraries": ["supervision", "deepeval", "inference", "respan"]
+    },
+    {
+      "id": 6,
+      "slug": "schema-default-scored-as-disagreement",
+      "name": "A schema default scored as a disagreement",
+      "definition": "The scorer holds the function schema but never reads parameter defaults, so an optional parameter stated at its default and the same parameter omitted score as disagreeing, in both directions.",
+      "findings": [
+        {"file": "findings/inspect-evals-2042-bfcl-optional-defaults.md", "pr": "UKGovernmentBEIS/inspect_evals#2042", "status": "merged"}
+      ],
+      "libraries_affected": 1,
+      "libraries": ["inspect_evals"]
+    },
+    {
+      "id": 7,
+      "slug": "truncation-scored-as-answer",
+      "name": "Truncation scored as the answer",
+      "definition": "A generation that stops inside an unterminated block is scored as if the truncated reasoning were the model's answer.",
+      "findings": [],
+      "prs_without_writeups": [
+        {"pr": "UKGovernmentBEIS/inspect_evals#2097", "status": "merged", "note": "LiveBench; shipped in v0.17.0; no long-form write-up in findings/"}
+      ],
+      "libraries_affected": 1,
+      "libraries": ["inspect_evals"]
+    },
+    {
+      "id": 8,
+      "slug": "aggregate-vs-per-sample",
+      "name": "Aggregate written where the per-sample value belongs",
+      "definition": "A per-sample field is computed from a dataset-wide accumulator, so every sample's value drifts toward the running mean and depends on iteration order.",
+      "findings": [
+        {"file": "findings/fiftyone-8195-cumulative-dice.md", "pr": "voxel51/fiftyone#8195", "status": "open"}
+      ],
+      "libraries_affected": 1,
+      "libraries": ["fiftyone"]
+    },
+    {
+      "id": 9,
+      "slug": "pricing-tiers-unreachable-or-mismodeled",
+      "name": "Pricing tiers unreachable or mis-modeled",
+      "definition": "Multi-tier pricing exists in the data, and the code that selects a tier cannot reach the higher tiers, applies the wrong tier-selection model, or never carries the tier data to the consumer.",
+      "findings": [
+        {"file": "findings/helicone-5737-unreachable-tiers.md", "pr": "Helicone/helicone#5737", "status": "open"},
+        {"file": "findings/litellm-34760-dashscope-tiers.md", "pr": "BerriAI/litellm#34760", "status": "open"},
+        {"file": "findings/phoenix-14761-tier-rates.md", "pr": "Arize-ai/phoenix#14761", "status": "closed-unmerged", "superseded_by": "a PR by the issue reporter, @Anuj7411"}
+      ],
+      "libraries_affected": 3,
+      "libraries": ["helicone", "litellm", "phoenix"]
+    },
+    {
+      "id": 10,
+      "slug": "missing-price-data-cost-dropped",
+      "name": "Missing price data, and cost silently dropped",
+      "definition": "The price for a real model is absent, or the cost lookup fails, and an exception handler or skip turns that into a span with token counts and an empty cost column.",
+      "findings": [
+        {"file": "findings/genai-prices-520-palmyra-bedrock.md", "pr": "pydantic/genai-prices#520", "status": "merged"},
+        {"file": "findings/logfire-2162-bedrock-cost-dropped.md", "pr": "pydantic/logfire#2162", "status": "open"}
+      ],
+      "libraries_affected": 2,
+      "libraries": ["genai-prices", "logfire"]
+    },
+    {
+      "id": 11,
+      "slug": "config-silently-ignored",
+      "name": "Config accepted and silently ignored",
+      "definition": "A parameter exists on the public signature, is accepted without complaint, and is never wired to anything; setting it does nothing, and its absence can remove a protection the underlying library would have provided.",
+      "findings": [
+        {"file": "findings/okareo-261-timeout-ignored.md", "pr": "okareo-ai/okareo-python-sdk#261", "status": "open"}
+      ],
+      "effect_overlap": ["findings/deepeval-2967-humaneval-pass-at-k.md", "findings/okareo-260-temperature-zero.md"],
+      "libraries_affected": 1,
+      "libraries": ["okareo-python-sdk"]
+    },
+    {
+      "id": 12,
+      "slug": "merge-or-copy-drops-usage",
+      "name": "A merge or copy that drops or corrupts usage",
+      "definition": "Code that merges, accumulates or copies usage objects encodes its own assumption about the provider's stream semantics or the model's field list, and silently loses or inflates counters when the assumption is wrong.",
+      "findings": [
+        {"file": "findings/openllmetry-4377-double-counted-tokens.md", "pr": "traceloop/openllmetry#4377", "status": "open"},
+        {"file": "findings/cohere-784-embed-meta-dropped.md", "pr": "cohere-ai/cohere-python#784", "status": "open"}
+      ],
+      "cross_listed": [
+        {"file": "findings/mcp-use-2127-streamed-usage-erased.md", "pr": "mcp-use/mcp-use#2127", "status": "open", "counted_in_class": 1}
+      ],
+      "libraries_affected": 3,
+      "libraries": ["openllmetry", "cohere-python", "mcp-use (cross-listed)"]
+    },
+    {
+      "id": 13,
+      "slug": "same-silence-non-numeric",
+      "name": "The same silence, somewhere other than a number",
+      "definition": "A code path produces something well-formed and plausible, hands it to a caller with no way to tell, and never says a word; the artifact is a message, a trace tree or a file rather than a float.",
+      "findings": [
+        {"file": "findings/litellm-34769-ollama-tool-calls.md", "pr": "BerriAI/litellm#34769", "status": "open"},
+        {"file": "findings/judgeval-769-foreign-parent-span.md", "pr": "JudgmentLabs/judgeval#769", "status": "open"},
+        {"file": "findings/cohere-785-csv-blank-rows.md", "pr": "cohere-ai/cohere-python#785", "status": "open"}
+      ],
+      "libraries_affected": 3,
+      "libraries": ["litellm", "judgeval", "cohere-python"]
+    }
+  ],
+  "outside_taxonomy": [
+    {"file": "findings/litellm-34770-banner-encoding.md", "pr": "BerriAI/litellm#34770", "status": "open", "reason": "the finding's own text says it is included for completeness rather than for the argument"}
+  ],
+  "negative_results": [
+    {"file": "findings/not-a-bug-litellm-30135.md", "pr": null, "issue": "BerriAI/litellm#30135", "note": "investigated, reproduced, not filed; a 2026-08-12 caveat says the reproduction needs re-running and the conclusion stands as an open question"}
+  ],
+  "totals_check": {
+    "finding_files": 31,
+    "counted_in_classes_1_to_13": 29,
+    "outside_taxonomy": 1,
+    "negative_results": 1,
+    "index_prs": {"total": 31, "merged": 6, "open": 20, "closed_unmerged": 5, "note": "30 finding files with PRs plus inspect_evals#2097; the negative result has no PR"}
+  }
+}
