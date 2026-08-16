@@ -2,8 +2,8 @@
 
 This repository studies one defect class: numbers that come out wrong while nothing raises,
 in the libraries the LLM ecosystem uses to measure itself, its evals, its traces and its
-bills. The corpus is **52 pull requests across 34 organisations: 9 merged upstream after
-human review, 34 open, 9 closed unmerged**, plus one investigation written up as a negative
+bills. The corpus is **64 pull requests across 43 organisations: 9 merged upstream after
+human review, 44 open, 11 closed unmerged**, plus one investigation written up as a negative
 result. Three of the merged fixes shipped in the UK AI Security Institute's inspect_evals
 Release v0.17.0, August 2026. The `findings/` directory holds 31 long-form write-ups, 30
 defects and 1 negative result, each reproduced against an installed package and most shipping
@@ -455,8 +455,8 @@ to 31: 29 defects in classes 1 through 13, one outside the taxonomy, one negativ
 
 The index below has 32 rows: 30 finding files with pull requests, one merged PR without a
 write-up (`inspect_evals#2097`), and one negative result with no PR. Its 31 pull requests
-split 6 merged, 20 open, 5 closed unmerged. The corpus-wide totals, 52 substantive PRs, 9
-merged, 34 open, 9 closed unmerged, include PRs outside `findings/`; the full unfiltered list
+split 6 merged, 20 open, 5 closed unmerged. The corpus-wide totals, 64 substantive PRs, 9
+merged, 44 open, 11 closed unmerged, include PRs outside `findings/`; the full unfiltered list
 is
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
 
@@ -549,8 +549,8 @@ objects directly or replay a recorded fixture. The exceptions are noted per find
 The sample is not random. I picked these libraries because they are the ones I use, and I read
 them looking for exactly this defect class, so nothing here supports a claim about how common
 these defects are in libraries I did not read, or relative to defect classes I was not looking
-for. 52 pull requests across 34 organisations is less impressive than it sounds: they are one
-bug pattern found repeatedly, not 52 independent investigations. Once you know the shapes
+for. 64 pull requests across 43 organisations is less impressive than it sounds: they are one
+bug pattern found repeatedly, not 64 independent investigations. Once you know the shapes
 above, finding the next one is grep and forty minutes.
 
 I make no causal claim about why the defects cluster where they do. I tried twice to measure
