@@ -2,8 +2,8 @@
 
 This repository studies one defect class: numbers that come out wrong while nothing raises,
 in the libraries the LLM ecosystem uses to measure itself, its evals, its traces and its
-bills. The corpus is **64 pull requests across 43 organisations: 9 merged upstream after
-human review, 44 open, 11 closed unmerged**, plus one investigation written up as a negative
+bills. The corpus is **68 pull requests across 44 organisations: 9 merged upstream after
+human review, 47 open, 12 closed unmerged**, plus one investigation written up as a negative
 result. Three of the merged fixes shipped in the UK AI Security Institute's inspect_evals
 Release v0.17.0, August 2026. The `findings/` directory holds 31 long-form write-ups, 30
 defects and 1 negative result, each reproduced against an installed package and most shipping
@@ -290,7 +290,7 @@ so the downstream calculator, correct and fully tested, is never handed anything
 **Findings.**
 
 - [`helicone-5737-unreachable-tiers.md`](findings/helicone-5737-unreachable-tiers.md), [Helicone/helicone#5737](https://github.com/Helicone/helicone/pull/5737), open. 40 endpoints declare more than one tier and 24 sit on a provider the switch never handled: 43% under-billing on exactly the requests that cost the most.
-- [`litellm-34760-dashscope-tiers.md`](findings/litellm-34760-dashscope-tiers.md), [BerriAI/litellm#34760](https://github.com/BerriAI/litellm/pull/34760), open. A 300k-input `qwen-flash` request logs at $0.0246 against the $0.079 actually charged, 69% under.
+- [`litellm-34760-dashscope-tiers.md`](findings/litellm-34760-dashscope-tiers.md), [BerriAI/litellm#34760](https://github.com/BerriAI/litellm/pull/34760), closed unmerged, superseded: a maintainer implemented tier selection independently and read `breakdown.total_input_tokens` rather than `usage.prompt_tokens`, which is the better choice. The four boundary behaviours it depended on had no test, so those went up separately as [BerriAI/litellm#37131](https://github.com/BerriAI/litellm/pull/37131). A 300k-input `qwen-flash` request logs at $0.0246 against the $0.079 actually charged, 69% under.
 - [`phoenix-14761-tier-rates.md`](findings/phoenix-14761-tier-rates.md), [Arize-ai/phoenix#14761](https://github.com/Arize-ai/phoenix/pull/14761), closed unmerged, superseded by the issue reporter's own PR. The shipped manifest carried zero threshold customizations across 267 models; regenerating with tier extraction produces 77 across 23, and `gemini-2.5-pro` is a straight 2x under-bill on every long-prompt trace until then.
 
 **Affected libraries: 3.**
@@ -455,8 +455,8 @@ to 31: 29 defects in classes 1 through 13, one outside the taxonomy, one negativ
 
 The index below has 32 rows: 30 finding files with pull requests, one merged PR without a
 write-up (`inspect_evals#2097`), and one negative result with no PR. Its 31 pull requests
-split 6 merged, 20 open, 5 closed unmerged. The corpus-wide totals, 64 substantive PRs, 9
-merged, 44 open, 11 closed unmerged, include PRs outside `findings/`; the full unfiltered list
+split 6 merged, 19 open, 6 closed unmerged. The corpus-wide totals, 68 substantive PRs, 9
+merged, 47 open, 12 closed unmerged, include PRs outside `findings/`; the full unfiltered list
 is
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
 
@@ -549,7 +549,7 @@ objects directly or replay a recorded fixture. The exceptions are noted per find
 The sample is not random. I picked these libraries because they are the ones I use, and I read
 them looking for exactly this defect class, so nothing here supports a claim about how common
 these defects are in libraries I did not read, or relative to defect classes I was not looking
-for. 64 pull requests across 43 organisations is less impressive than it sounds: they are one
+for. 68 pull requests across 44 organisations is less impressive than it sounds: they are one
 bug pattern found repeatedly, not 64 independent investigations. Once you know the shapes
 above, finding the next one is grep and forty minutes.
 
