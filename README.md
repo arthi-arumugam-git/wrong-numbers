@@ -2,8 +2,8 @@
 
 This repository studies one defect class: numbers that come out wrong while nothing raises,
 in the libraries the LLM ecosystem uses to measure itself, its evals, its traces and its
-bills. The corpus is **76 pull requests across 48 organisations: 11 merged upstream after
-human review, 51 open, 14 closed unmerged**, plus one investigation written up as a negative
+bills. The corpus is **76 pull requests across 48 organisations: 12 merged upstream after
+human review, 50 open, 14 closed unmerged**, plus one investigation written up as a negative
 result. Three of the merged fixes shipped in the UK AI Security Institute's inspect_evals
 Release v0.17.0, August 2026. The `findings/` directory holds 31 long-form write-ups, 30
 defects and 1 negative result, each reproduced against an installed package and most shipping
