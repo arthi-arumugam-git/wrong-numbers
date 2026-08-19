@@ -2,8 +2,8 @@
 
 This repository studies one defect class: numbers that come out wrong while nothing raises,
 in the libraries the LLM ecosystem uses to measure itself, its evals, its traces and its
-bills. The corpus is **68 pull requests across 44 organisations: 9 merged upstream after
-human review, 47 open, 12 closed unmerged**, plus one investigation written up as a negative
+bills. The corpus is **76 pull requests across 48 organisations: 10 merged upstream after
+human review, 52 open, 14 closed unmerged**, plus one investigation written up as a negative
 result. Three of the merged fixes shipped in the UK AI Security Institute's inspect_evals
 Release v0.17.0, August 2026. The `findings/` directory holds 31 long-form write-ups, 30
 defects and 1 negative result, each reproduced against an installed package and most shipping
@@ -549,8 +549,8 @@ objects directly or replay a recorded fixture. The exceptions are noted per find
 The sample is not random. I picked these libraries because they are the ones I use, and I read
 them looking for exactly this defect class, so nothing here supports a claim about how common
 these defects are in libraries I did not read, or relative to defect classes I was not looking
-for. 68 pull requests across 44 organisations is less impressive than it sounds: they are one
-bug pattern found repeatedly, not 64 independent investigations. Once you know the shapes
+for. 76 pull requests across 48 organisations is less impressive than it sounds: they are one
+bug pattern found repeatedly, not 76 independent investigations. Once you know the shapes
 above, finding the next one is grep and forty minutes.
 
 I make no causal claim about why the defects cluster where they do. I tried twice to measure
