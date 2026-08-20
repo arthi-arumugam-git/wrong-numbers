@@ -1,19 +1,22 @@
 # Wrong numbers
 
-This repository studies one defect class: numbers that come out wrong while nothing raises,
-in the libraries the LLM ecosystem uses to measure itself, its evals, its traces and its
-bills. The corpus is **76 pull requests across 48 organisations: 12 merged upstream after
+A field guide to one defect class: numbers that come out wrong while nothing raises, in the
+libraries the LLM ecosystem uses to measure itself, its evals, its traces and its bills.
+
+The corpus behind it is **76 pull requests across 48 organisations: 12 merged upstream after
 human review, 50 open, 14 closed unmerged**, plus one investigation written up as a negative
-result. Three of the merged fixes shipped in the UK AI Security Institute's inspect_evals
-Release v0.17.0, August 2026. The `findings/` directory holds 31 long-form write-ups, 30
-defects and 1 negative result, each reproduced against an installed package and most shipping
-a test that fails on `main`. Classified by mechanism, the defects fall into thirteen
-recurring shapes, one write-up sitting outside the taxonomy by its own admission, and the
-largest single family, an identical cached-token arithmetic error, was found independently
-implemented in six unrelated frameworks. The headline result is not any single bug; it is
-that the same few shapes recur
-across codebases that share no code, which means each shape can be caught by pattern rather
-than by luck.
+result. Four of the merged fixes are in the UK AI Security Institute's inspect_evals, three of
+them shipped in its Release v0.17.0, August 2026. The `findings/` directory holds 31 long-form
+write-ups, 30 defects and 1 negative result, each reproduced against an installed package and
+most shipping a test that fails on `main`. Classified by mechanism, the defects fall into
+thirteen recurring shapes, one write-up sitting outside the taxonomy by its own admission, and
+the largest single family, an identical cached-token arithmetic error, was found independently
+implemented in six unrelated frameworks.
+
+The headline result is not any single bug. It is that the same few shapes recur across
+codebases that share no code, which means each shape can be caught by pattern rather than by
+luck. That is what makes this a field guide rather than a bug list: every shape below comes
+with the question that finds it, the grep that narrows it, and the test shape that pins it.
 
 I also thought these defects cluster in metric code because metric code is untested. I tried to
 measure that twice. The first method grepped test files for each metric's name, which measures
@@ -48,9 +51,57 @@ that stale numbers go unnoticed has no business carrying one. See
 builds every table on this page is [`taxonomy.json`](taxonomy.json), so the index is
 regenerable rather than hand-kept.
 
-**[Jump to the taxonomy](#the-taxonomy) ·
-[Jump to the prevalence table](#prevalence) ·
-[Jump to the full index](#the-findings)**
+**[The checklist](#how-to-catch-these-in-your-own-repo) ·
+[The thirteen shapes](#the-thirteen-shapes) ·
+[Prevalence](#prevalence) ·
+[The full index](#the-findings)**
+
+## How to catch these in your own repo
+
+Each question below finds one of the thirteen shapes. None of them needs a model, a network or
+an API key; they are greps and small tests you can write in an afternoon. The shape number
+links each question to its receipts further down.
+
+1. **What happens to a sample that could not be scored?** Feed your metric a run where every
+   sample failed to parse, and a run where the model legitimately declined. If the two produce
+   the same number, or the empty case produces any number on the metric's own scale instead of
+   `nan` or an error, that is shape 3.
+2. **Does the denominator match what was summed?** Score a list containing `None`s, or a
+   truncated subset, and assert a perfect run reports 1.0. A numerator over a filtered set
+   divided by the unfiltered length is shape 4.
+3. **Can a zero be real?** Grep for `if value:`, `isinstance(cost, float)` and `hasattr` guards
+   over numeric fields, then check the field's declared type. A truthiness guard on a required
+   field can only ever filter a legal value. Shape 2.
+4. **Do cached tokens survive the accounting?** Construct a usage object where the cached
+   portion dwarfs the fresh portion, say `input_tokens=3, cache_read_input_tokens=20000`, and
+   assert the reported count equals the billed count. Identical work described in the Anthropic
+   shape and the OpenAI shape must produce identical totals. Shape 1, and the reason cachecheck
+   exists.
+5. **Is a request priced the same above a tier threshold?** For every model with more than one
+   published tier, price one request above the threshold and compare against the provider's own
+   bill. Shape 9.
+6. **Does every model the SDK advertises resolve a price?** And count the cost assertions in
+   each integration's test file; a file with zero where its twin has 27 is telling you where the
+   silent path is. Shape 10.
+7. **Do the streamed and non-streamed paths agree?** The same request with `stream=true` and
+   `stream=false` must produce the same tool calls and the same totals. Shapes 12 and 13.
+8. **Does sample order change any sample's score?** Evaluate the same data forward and reversed
+   and assert every sample keeps its score. An accumulator leaking into a per-sample field is
+   shape 8.
+9. **When a fix lands, where are its twins?** Grep the repository for the exact line the fix
+   replaced; the sibling still carrying it is the finding. Shape 5.
+10. **Does every accepted parameter do something?** Pass a non-default value and assert
+    observable behaviour changes. A parameter read zero times is shape 11.
+11. **What does the scorer do with a truncated generation?** Feed it a generation cut off inside
+    an unterminated tag or fence and assert it scores as unanswered, not as whatever string the
+    truncation left behind. Shape 7.
+12. **Is a stated default scored the same as an omission?** For tool calls scored against a
+    schema, ground truth omitting while the model states the default, and the reverse, must both
+    score as agreement, while a non-default value must still fail. Shape 6.
+
+And the cheapest check of all, which belongs in every harness: run the whole pipeline on
+shuffled labels and confirm it scores at chance. A harness that beats chance on shuffled answers
+has an alignment or leakage bug, and no other check will tell you.
 
 ## The defect class
 
@@ -69,13 +120,13 @@ Every defect below shares one property: the code path produces a value of the ri
 is perfectly valid input to the next function, which does its job correctly on it and returns
 something plausible. There is no point in the chain where anything is in a position to notice.
 
-## The taxonomy
+## The thirteen shapes
 
 The classes below are derived from the defect write-ups in [`findings/`](findings/), by
 mechanism rather than by symptom, because the mechanism is the thing you can grep for. Each
 finding sits in exactly one primary class and is counted there once; where a finding carries a
 second defect it is cross-listed and marked as such. Statuses are from the GitHub API, checked
-2026-08-15.
+2026-08-20.
 
 ### 1. Cache-token exclusion
 
@@ -96,7 +147,7 @@ was not cached.
 - [`livekit-6663-bedrock-cached-tokens.md`](findings/livekit-6663-bedrock-cached-tokens.md), [livekit/agents#6663](https://github.com/livekit/agents/pull/6663), merged
 - [`crewai-6838-anthropic-cached-tokens.md`](findings/crewai-6838-anthropic-cached-tokens.md), [crewAIInc/crewAI#6838](https://github.com/crewAIInc/crewAI/pull/6838), closed unmerged, superseded by a maintainer's own fix
 - [`llamaindex-22548-anthropic-cache-tokens.md`](findings/llamaindex-22548-anthropic-cache-tokens.md), [run-llama/llama_index#22548](https://github.com/run-llama/llama_index/pull/22548), closed unmerged, and carrying its own correction: the diagnosis was right and my proposed fix would have double-counted
-- [`mcp-use-2127-streamed-usage-erased.md`](findings/mcp-use-2127-streamed-usage-erased.md), [mcp-use/mcp-use#2127](https://github.com/mcp-use/mcp-use/pull/2127), open, which also carries the streaming erasure written up under class 12
+- [`mcp-use-2127-streamed-usage-erased.md`](findings/mcp-use-2127-streamed-usage-erased.md), [mcp-use/mcp-use#2127](https://github.com/mcp-use/mcp-use/pull/2127), merged, which also carries the streaming erasure written up under class 12
 
 Two more members of the family were fixed without long-form write-ups:
 [pipecat-ai/pipecat#5163](https://github.com/pipecat-ai/pipecat/pull/5163), merged at Daily
@@ -105,7 +156,7 @@ about four hours after it opened, and
 merged at deepset after a round of requested changes.
 
 **Spread: six frameworks**, Pipecat, LiveKit, LlamaIndex, Haystack, mcp-use and CrewAI, each
-an independent implementation of the same arithmetic error. Three of the six fixes are merged.
+an independent implementation of the same arithmetic error. Four of the six fixes are merged.
 This is the widest cross-library spread in the corpus and the reason
 [cachecheck](https://github.com/arthi-arumugam-git/cachecheck) exists.
 
@@ -159,7 +210,7 @@ earns.
 **Findings.**
 
 - [`inspect-evals-2036-sycophancy-metrics.md`](findings/inspect-evals-2036-sycophancy-metrics.md), [UKGovernmentBEIS/inspect_evals#2036](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2036), merged, shipped in v0.17.0. `confidence` and `apologize_rate` reported 0.0 on every run for every model, because the dict branch their bodies were guarded by could never fire under dict-form registration.
-- [`inspect-evals-2123-stereoset-unscorable.md`](findings/inspect-evals-2123-stereoset-unscorable.md), [UKGovernmentBEIS/inspect_evals#2123](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123), open. A run where nothing parsed reports the ideal score; a run where 95% failed to parse can report maximum bias computed from the 5% that survived, with nothing to say so.
+- [`inspect-evals-2123-stereoset-unscorable.md`](findings/inspect-evals-2123-stereoset-unscorable.md), [UKGovernmentBEIS/inspect_evals#2123](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123), merged. A run where nothing parsed reports the ideal score; a run where 95% failed to parse can report maximum bias computed from the 5% that survived, with nothing to say so.
 - [`deepeval-2968-tool-use-metric.md`](findings/deepeval-2968-tool-use-metric.md), [confident-ai/deepeval#2968](https://github.com/confident-ai/deepeval/pull/2968), open. A conversation that correctly needed no tool scores 0, the same score as picking every tool wrong.
 
 **Affected libraries: 2.**
@@ -367,7 +418,7 @@ field added to the model after the list was written is dropped, on the default p
 
 - [`openllmetry-4377-double-counted-tokens.md`](findings/openllmetry-4377-double-counted-tokens.md), [traceloop/openllmetry#4377](https://github.com/traceloop/openllmetry/pull/4377), open. 174 reported against a true 171 on the repo's own cassette; the vendor SDK assigns where this code adds.
 - [`cohere-784-embed-meta-dropped.md`](findings/cohere-784-embed-meta-dropped.md), [cohere-ai/cohere-python#784](https://github.com/cohere-ai/cohere-python/pull/784), open. `meta.tokens` comes back `None` on the default batching path and populated with `batching=False`; nothing in the signature suggests a batching flag should change which usage numbers come back.
-- Cross-listed from class 1: [`mcp-use-2127-streamed-usage-erased.md`](findings/mcp-use-2127-streamed-usage-erased.md), [mcp-use/mcp-use#2127](https://github.com/mcp-use/mcp-use/pull/2127), open, counted in class 1. The end-to-end test reports `totalTokens: undefined` on the base commit. Their review then surfaced a third copy of the same arithmetic that I had missed, which is written up honestly in the finding.
+- Cross-listed from class 1: [`mcp-use-2127-streamed-usage-erased.md`](findings/mcp-use-2127-streamed-usage-erased.md), [mcp-use/mcp-use#2127](https://github.com/mcp-use/mcp-use/pull/2127), merged, counted in class 1. The end-to-end test reports `totalTokens: undefined` on the base commit. Their review then surfaced a third copy of the same arithmetic that I had missed, which is written up honestly in the finding.
 
 **Affected libraries: 3, one of them via the cross-listing.**
 
@@ -428,20 +479,20 @@ the benchmark's definition and check.
 ## Prevalence
 
 Counts are findings in `findings/` per primary class; statuses are PR states from the GitHub
-API, 2026-08-15. The mapping behind this table is [`taxonomy.json`](taxonomy.json).
+API, 2026-08-20. The mapping behind this table is [`taxonomy.json`](taxonomy.json).
 
 | # | Class | Findings | Merged | Open | Closed unmerged |
 |---|---|---|---|---|---|
-| 1 | Cache-token exclusion | 4 | 1 | 1 | 2 |
+| 1 | Cache-token exclusion | 4 | 2 | 0 | 2 |
 | 1a | ...family members without write-ups (Pipecat, Haystack) | 2 | 2 | 0 | 0 |
 | 2 | A guard that filters a legal value | 3 | 0 | 3 | 0 |
-| 3 | Silent-zero metrics | 3 | 1 | 2 | 0 |
+| 3 | Silent-zero metrics | 3 | 2 | 1 | 0 |
 | 4 | Denominator does not match what was counted | 2 | 0 | 2 | 0 |
 | 5 | Fix lands on some twins and not others | 4 | 1 | 1 | 2 |
 | 6 | Schema default scored as disagreement | 1 | 1 | 0 | 0 |
 | 7 | Truncation scored as the answer (no write-up, PR only) | 1 | 1 | 0 | 0 |
 | 8 | Aggregate written where the per-sample value belongs | 1 | 0 | 1 | 0 |
-| 9 | Pricing tiers unreachable or mis-modeled | 3 | 0 | 2 | 1 |
+| 9 | Pricing tiers unreachable or mis-modeled | 3 | 0 | 1 | 2 |
 | 10 | Missing price data, cost silently dropped | 2 | 1 | 1 | 0 |
 | 11 | Config accepted and silently ignored | 1 | 0 | 1 | 0 |
 | 12 | A merge or copy that drops or corrupts usage | 2 | 0 | 2 | 0 |
@@ -455,29 +506,34 @@ to 31: 29 defects in classes 1 through 13, one outside the taxonomy, one negativ
 
 The index below has 32 rows: 30 finding files with pull requests, one merged PR without a
 write-up (`inspect_evals#2097`), and one negative result with no PR. Its 31 pull requests
-split 6 merged, 19 open, 6 closed unmerged. The corpus-wide totals, 68 substantive PRs, 9
-merged, 47 open, 12 closed unmerged, include PRs outside `findings/`; the full unfiltered list
-is
+split 8 merged, 17 open, 6 closed unmerged. The corpus-wide totals, 76 substantive PRs across
+48 organisations, 12 merged, 50 open, 14 closed unmerged, include PRs outside `findings/`; the
+full unfiltered list is
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
 
 ## The findings
 
-Of the nine merged corpus-wide, `inspect_evals#2036`, `#2042` and `#2097` went in at the UK AI
-Security Institute and shipped in Release v0.17.0 on 2026-08-14, `pipecat#5163` at Daily about
-four hours after it opened, `livekit/agents#6663` was approved and merged by LiveKit's
-co-founder, `supervision#2468` and `inference#2745` at Roboflow, the first after a review that
-caught a real hole in my first attempt and the second approved by two maintainers,
-`haystack-core-integrations#3717` at deepset after a round of requested changes, and
-`genai-prices#520` at Pydantic. On the first two inspect_evals fixes the maintainer pushed
+Of the twelve merged corpus-wide: `inspect_evals#2036`, `#2042` and `#2097` went in at the UK
+AI Security Institute and shipped in Release v0.17.0 on 2026-08-14, and `#2123` followed on
+2026-08-19, the fourth there. `pipecat#5163` merged at Daily about four hours after it opened.
+`livekit/agents#6663` was approved and merged by LiveKit's co-founder. `supervision#2468` and
+`inference#2745` at Roboflow, the first after a review that caught a real hole in my first
+attempt and the second approved by two maintainers. `haystack-core-integrations#3717` at
+deepset after a round of requested changes. `genai-prices#520` at Pydantic. `mcp-use#2127` on
+2026-08-18, where review surfaced a third copy of the arithmetic I had missed. And `ogx#6415`
+on 2026-08-19, a cache-token double-count in an agent benchmark's cost accounting, merged after
+the maintainer checked the arithmetic against both providers' docs; no write-up here yet, the
+PR is the record. On the first two inspect_evals fixes and on `#2123` the maintainer pushed
 commits before merging, so those merged diffs are not purely mine.
 
-Nine were closed unmerged, and four of those were closed as duplicates of a fix that landed
-instead: `phoenix#14761` (superseded by @Anuj7411's own PR, which also closed the issue mine
-claimed to close), `inference#2748` (by #2747, opened hours earlier), `crewAI#6838` (by a
-maintainer's own #6844) and `respan#339` (by #344). The rest: `verifiers#2176` closed in a
-triage sweep, `llama_index#22548` where the callback system is deprecated, `deepeval#2995`
-self-closed as obsolete, `superset#33377` on a botched rebase, and `inspect_scout#9` which I
-closed myself once I found upstream had shipped the fix in June.
+Fourteen were closed unmerged corpus-wide. Five of those were closed as duplicates or
+supersessions of a fix that landed instead: `phoenix#14761` (superseded by @Anuj7411's own PR,
+which also closed the issue mine claimed to close), `inference#2748` (by #2747, opened hours
+earlier), `crewAI#6838` (by a maintainer's own #6844), `respan#339` (by #344), and
+`litellm#34760` (a maintainer implemented tier selection independently). Among the rest:
+`verifiers#2176` closed in a triage sweep, `llama_index#22548` where the callback system is
+deprecated, `deepeval#2995` self-closed as obsolete, `superset#33377` on a botched rebase, and
+`inspect_scout#9` which I closed myself once I found upstream had shipped the fix in June.
 
 | Status | Class | Where | Finding | PR |
 |---|---|---|---|---|
@@ -487,15 +543,14 @@ closed myself once I found upstream had shipped the fix in June.
 | **merged** | 1 | `livekit/agents` | [Bedrock prompt_tokens excludes cached tokens](findings/livekit-6663-bedrock-cached-tokens.md) | [#6663](https://github.com/livekit/agents/pull/6663) |
 | **merged** | 5 | `roboflow/supervision` | [Recall tracks a different class set than Precision and F1](findings/supervision-2468-recall-prediction-only-classes.md) | [#2468](https://github.com/roboflow/supervision/pull/2468) |
 | **merged** | 10 | `pydantic/genai-prices` | [Palmyra X4 and X5 on Bedrock resolve no price at all](findings/genai-prices-520-palmyra-bedrock.md) | [#520](https://github.com/pydantic/genai-prices/pull/520) |
-| open | 3 | `UKGovernmentBEIS/inspect_evals` | [a run where nothing parsed reports StereoSet's ideal score](findings/inspect-evals-2123-stereoset-unscorable.md) | [#2123](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123) |
-| open | 1, 12 | `mcp-use/mcp-use` | [the streamed total was not wrong, it was gone](findings/mcp-use-2127-streamed-usage-erased.md) | [#2127](https://github.com/mcp-use/mcp-use/pull/2127) |
+| **merged** | 3 | `UKGovernmentBEIS/inspect_evals` | [a run where nothing parsed reports StereoSet's ideal score](findings/inspect-evals-2123-stereoset-unscorable.md) | [#2123](https://github.com/UKGovernmentBEIS/inspect_evals/pull/2123) |
+| **merged** | 1, 12 | `mcp-use/mcp-use` | [the streamed total was not wrong, it was gone](findings/mcp-use-2127-streamed-usage-erased.md) | [#2127](https://github.com/mcp-use/mcp-use/pull/2127) |
 | open | 2 | `confident-ai/deepeval` | [HumanEval collapses pass@k into pass@n](findings/deepeval-2967-humaneval-pass-at-k.md) | [#2967](https://github.com/confident-ai/deepeval/pull/2967) |
 | open | 3 | `confident-ai/deepeval` | [ToolUseMetric scores 0 when no tool was needed](findings/deepeval-2968-tool-use-metric.md) | [#2968](https://github.com/confident-ai/deepeval/pull/2968) |
 | open | 4 | `confident-ai/deepeval` | [benchmark denominators don't match what was scored](findings/deepeval-2966-benchmark-denominators.md) | [#2966](https://github.com/confident-ai/deepeval/pull/2966) |
 | open | 5 | `confident-ai/deepeval` | [ConversationalGEval ignores the rubric range](findings/deepeval-2965-conversational-geval-rubric.md) | [#2965](https://github.com/confident-ai/deepeval/pull/2965) |
 | open | 8 | `voxel51/fiftyone` | [every sample's Dice score is the running dataset average](findings/fiftyone-8195-cumulative-dice.md) | [#8195](https://github.com/voxel51/fiftyone/pull/8195) |
 | open | 9 | `Helicone/helicone` | [higher pricing tiers unreachable on 24 endpoints](findings/helicone-5737-unreachable-tiers.md) | [#5737](https://github.com/Helicone/helicone/pull/5737) |
-| open | 9 | `BerriAI/litellm` | [DashScope tiers each token category independently](findings/litellm-34760-dashscope-tiers.md) | [#34760](https://github.com/BerriAI/litellm/pull/34760) |
 | open | 13 | `BerriAI/litellm` | [ollama/ drops every tool call when stream=true](findings/litellm-34769-ollama-tool-calls.md) | [#34769](https://github.com/BerriAI/litellm/pull/34769) |
 | open | out | `BerriAI/litellm` | [proxy won't start on a console that can't encode the banner](findings/litellm-34770-banner-encoding.md) | [#34770](https://github.com/BerriAI/litellm/pull/34770) |
 | open | 13 | `JudgmentLabs/judgeval` | [a foreign global OTel span is adopted as parent](findings/judgeval-769-foreign-parent-span.md) | [#769](https://github.com/JudgmentLabs/judgeval/pull/769) |
@@ -511,6 +566,7 @@ closed myself once I found upstream had shipped the fix in June.
 | closed | 1 | `run-llama/llama_index` | [3 prompt tokens reported for a call that billed 21,503](findings/llamaindex-22548-anthropic-cache-tokens.md) | [#22548](https://github.com/run-llama/llama_index/pull/22548) |
 | closed | 5 | `roboflow/inference` | [the weights proxy double-wraps and drops the gateway base path](findings/inference-2748-gateway-proxy-parity.md) | [#2748](https://github.com/roboflow/inference/pull/2748) |
 | closed | 5 | `respanai/respan` | [Gemini thinking tokens land on no attribute at all](findings/respan-339-gemini-thinking-tokens.md) | [#339](https://github.com/respanai/respan/pull/339) |
+| closed | 9 | `BerriAI/litellm` | [DashScope tiers each token category independently](findings/litellm-34760-dashscope-tiers.md) | [#34760](https://github.com/BerriAI/litellm/pull/34760) |
 | closed | 9 | `Arize-ai/phoenix` | [LiteLLM tier rates never reach the cost manifest](findings/phoenix-14761-tier-rates.md) | [#14761](https://github.com/Arize-ai/phoenix/pull/14761) |
 | n/a | neg | `BerriAI/litellm` | [not a bug: issue #30135, investigated and not filed](findings/not-a-bug-litellm-30135.md) | none |
 
