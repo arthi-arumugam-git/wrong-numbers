@@ -3,8 +3,8 @@
 A field guide to one defect class: numbers that come out wrong while nothing raises, in the
 libraries the LLM ecosystem uses to measure itself, its evals, its traces and its bills.
 
-The corpus behind it is **76 pull requests across 48 organisations: 12 merged upstream after
-human review, 50 open, 14 closed unmerged**, plus one investigation written up as a negative
+The corpus behind it is **79 pull requests across 49 organisations: 14 merged upstream after
+human review, 51 open, 14 closed unmerged**, plus one investigation written up as a negative
 result. Four of the merged fixes are in the UK AI Security Institute's inspect_evals, three of
 them shipped in its Release v0.17.0, August 2026. The `findings/` directory holds 31 long-form
 write-ups, 30 defects and 1 negative result, each reproduced against an installed package and
@@ -506,16 +506,18 @@ to 31: 29 defects in classes 1 through 13, one outside the taxonomy, one negativ
 
 The index below has 32 rows: 30 finding files with pull requests, one merged PR without a
 write-up (`inspect_evals#2097`), and one negative result with no PR. Its 31 pull requests
-split 8 merged, 17 open, 6 closed unmerged. The corpus-wide totals, 76 substantive PRs across
-48 organisations, 12 merged, 50 open, 14 closed unmerged, include PRs outside `findings/`; the
+split 8 merged, 17 open, 6 closed unmerged. The corpus-wide totals, 79 substantive PRs across
+49 organisations, 14 merged, 51 open, 14 closed unmerged, include PRs outside `findings/`; the
 full unfiltered list is
 [`is:pr author:arthi-arumugam-git`](https://github.com/search?q=is%3Apr+author%3Aarthi-arumugam-git&type=pullrequests).
 
 ## The findings
 
-Of the twelve merged corpus-wide: `inspect_evals#2036`, `#2042` and `#2097` went in at the UK
+Of the fourteen merged corpus-wide: `inspect_evals#2036`, `#2042` and `#2097` went in at the UK
 AI Security Institute and shipped in Release v0.17.0 on 2026-08-14, and `#2123` followed on
-2026-08-19, the fourth there. `pipecat#5163` merged at Daily about four hours after it opened.
+2026-08-19 and `#2174` on 2026-08-21, the fifth there: AgentHarm handed a model that refused
+all 100 harmful tasks the identical headline score to one that attempted every task and failed,
+because the refusal filter had emptied the average. `pipecat#5163` merged at Daily about four hours after it opened.
 `livekit/agents#6663` was approved and merged by LiveKit's co-founder. `supervision#2468` and
 `inference#2745` at Roboflow, the first after a review that caught a real hole in my first
 attempt and the second approved by two maintainers. `haystack-core-integrations#3717` at
@@ -523,7 +525,9 @@ deepset after a round of requested changes. `genai-prices#520` at Pydantic. `mcp
 2026-08-18, where review surfaced a third copy of the arithmetic I had missed. And `ogx#6415`
 on 2026-08-19, a cache-token double-count in an agent benchmark's cost accounting, merged after
 the maintainer checked the arithmetic against both providers' docs; no write-up here yet, the
-PR is the record. On the first two inspect_evals fixes and on `#2123` the maintainer pushed
+PR is the record. `respan#351` on 2026-08-21 came out of losing a race: `#339` was superseded by
+`#344`, which landed the same fix first, and the maintainer then invited the control cases as a
+follow-up, which is what merged. On the first two inspect_evals fixes and on `#2123` the maintainer pushed
 commits before merging, so those merged diffs are not purely mine.
 
 Fourteen were closed unmerged corpus-wide. Five of those were closed as duplicates or
@@ -605,8 +609,8 @@ objects directly or replay a recorded fixture. The exceptions are noted per find
 The sample is not random. I picked these libraries because they are the ones I use, and I read
 them looking for exactly this defect class, so nothing here supports a claim about how common
 these defects are in libraries I did not read, or relative to defect classes I was not looking
-for. 76 pull requests across 48 organisations is less impressive than it sounds: they are one
-bug pattern found repeatedly, not 76 independent investigations. Once you know the shapes
+for. 79 pull requests across 49 organisations is less impressive than it sounds: they are one
+bug pattern found repeatedly, not 79 independent investigations. Once you know the shapes
 above, finding the next one is grep and forty minutes.
 
 I make no causal claim about why the defects cluster where they do. I tried twice to measure
